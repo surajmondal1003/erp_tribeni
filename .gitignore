@@ -1,0 +1,11 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# Don't track content of these folders
+venv/
+.idea/
+
+venv/*
+.idea/*
+
+*.pyc
+*.swp
