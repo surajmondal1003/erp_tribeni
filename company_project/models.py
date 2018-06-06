@@ -2,6 +2,7 @@ from django.db import models
 from states.models import State
 from company.models import Company
 from django.contrib.auth.models import User
+from material_master.models import MaterialType,Material
 
 # Create your models here.
 
@@ -28,6 +29,8 @@ class CompanyProject(models.Model):
 
 class ProjectDetail(models.Model):
     project=models.ForeignKey(CompanyProject,on_delete=models.CASCADE,related_name='project_details')
+    material_type = models.ForeignKey(MaterialType,on_delete=models.CASCADE,)
+
 
 
 

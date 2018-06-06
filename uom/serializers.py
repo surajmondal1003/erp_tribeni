@@ -11,4 +11,4 @@ class UOMSerializer(ModelSerializer):
 
     class Meta:
         model = UOM
-        fields = ['id','name','created_at','created_by','is_deleted']
+        fields = ['id','name','created_at','created_by','status','is_deleted']
