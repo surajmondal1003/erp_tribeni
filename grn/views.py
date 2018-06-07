@@ -17,13 +17,13 @@ from django.utils import timezone
 from grn.serializers import (
     GRNSerializer,
     GRNDetailSerializer,
-    GRNMapSerializer,
     GRNReadSerializer,
-    GRNUpdateStatusSerializer
+    GRNUpdateStatusSerializer,
+    ReversGRNSerializer
 
 )
 from django.contrib.auth.models import User
-from grn.models import GRNMap,GRNDetail,GRN
+from grn.models import ReversGRN,GRNDetail,GRN
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -80,6 +80,14 @@ class GRNCreate(ListCreateAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNSerializer
     #permission_classes = [IsAuthenticated,IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = ErpPageNumberPagination
+
+
+class ReversGRNCreate(ListCreateAPIView):
+    queryset = ReversGRN.objects.all()
+    serializer_class = ReversGRNSerializer
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
 

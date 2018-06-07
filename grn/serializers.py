@@ -63,7 +63,8 @@ class GRNSerializer(ModelSerializer):
             GRNDetail.objects.create(grn=grn, **grn_detail)
 
 
-        # GRNMap.objects.create(grn=grn,grn_no=grn_no)
+        grn.grn_no = grn_no
+        grn.save()
 
 
         return grn
@@ -102,18 +103,15 @@ class GRNReadSerializer(ModelSerializer):
     # pur_grp=PurchaseGroupSerializer()
     vendor=VendorNameSerializer(read_only=True)
     vendor_address=VendorAddressSerializer()
-    # grn_map=GRNMapSerializer(read_only=True,many=True)
     grn_detail = GRNDetailReadSerializer(many=True)
     created_by = UserReadSerializer()
 
 
     class Meta:
         model = GRN
-        fields = ['id','purchase_order_no','po_order','pur_org','pur_grp','company','vendor','vendor_address','waybill_no','vehicle_no',
-                  'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
-                  'created_by','is_deleted','grn_detail','grn_map']
-
-
+        fields = ['id', 'grn_no','purchase_order_no','po_order','pur_org','pur_grp','company','project','vendor','vendor_address',
+                  'waybill_no','vehicle_no','check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
+                  'created_by','is_deleted','grn_detail']
 
 
 class GRNCreateBySerializer(ModelSerializer):
@@ -162,11 +160,14 @@ class ReversGRNSerializer(ModelSerializer):
 
         revers_grn = ReversGRN.objects.create(**validated_data)
 
-        # grn_no = str(datetime.date.today()) + '/GRN-00' + str(grn.id)
+        revers_gen_no = str(datetime.date.today()) + '/REGRN-00' + str(revers_grn.id)
 
         for iter_grn in grn_data:
             GRNDetail.objects.create(grn=iter_grn, **iter_grn)
-        return revers_grn
+
+        revers_grn.revers_gen_no = revers_gen_no
+        revers_grn.save()
+        return revers_gen_no
 
     def update(self, instance, validated_data):
 
