@@ -1,8 +1,7 @@
 from django.contrib import admin
-from company_branch.models import CompanyBranch,StorageLocation,UOM,StorageBin
+from company_project.models import CompanyProject, CompanyProjectDetail
 
 # Register your models here.
-admin.site.register(CompanyBranch)
-admin.site.register(StorageLocation)
-admin.site.register(UOM)
-admin.site.register(StorageBin)
+admin.site.register(CompanyProject)
+admin.site.register(CompanyProjectDetail)
+

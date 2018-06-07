@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'designation',
     # 'employee',
     'contractor',
-    'uom'
+    'uom',
+    'company_project'
 ]
 
 MIDDLEWARE = [
