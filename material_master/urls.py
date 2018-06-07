@@ -15,5 +15,7 @@ urlpatterns = [
     path('material_master/<pk>/', views.MaterialMatserUpdate.as_view()),
     path('all_material_master/<pk>/', views.MaterialReadDetailView.as_view()),
     path('all_material_type_dropdown/', views.MaterialTypeViewDropdown.as_view()),
+    path('specific_project_material/<project_id>/<mtype_id>/', views.ProjectSpecificMaterialList.as_view()),
+    path('specific_project_materialtype/<project_id>/', views.ProjectSpecificMaterialTypeList.as_view()),
 
 ]

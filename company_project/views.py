@@ -53,7 +53,7 @@ class CompanyProjectViewSet(viewsets.ModelViewSet):
 
 class SpecificCompanyProject(ListAPIView):
 
-    serializer_class = CompanyProjectDetailsSerializer
+    serializer_class = CompanyProjectSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
@@ -69,7 +69,7 @@ class SpecificCompanyProject(ListAPIView):
 
 class SpecificCompanyProjectDropdown(ListAPIView):
 
-    serializer_class = CompanyProjectDetailsSerializer
+    serializer_class = CompanyProjectSerializer
     permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 

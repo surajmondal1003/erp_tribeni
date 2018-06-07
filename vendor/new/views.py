@@ -34,7 +34,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class VendorTypeViewSet(viewsets.ModelViewSet):
     queryset = VendorType.objects.filter(is_deleted=False).order_by('-id')
     serializer_class =VendorTypeSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
@@ -58,17 +58,11 @@ class VendorTypeViewSet(viewsets.ModelViewSet):
             raise
 
 
-class VendorTypeDropdown(ListAPIView):
-    queryset = VendorType.objects.filter(is_deleted=False).order_by('-id')
-    serializer_class =VendorTypeSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
 
 class VendorReadView(ListAPIView):
     queryset = Vendor.objects.filter(is_deleted=False).order_by('-id')
     serializer_class = VendorSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
@@ -94,8 +88,8 @@ class VendorReadView(ListAPIView):
 
 class VendorReadDropdown(ListAPIView):
     queryset = Vendor.objects.filter(status=True,is_deleted=False)
-    serializer_class = VendorTypeSerializer
-    permission_classes = [IsAuthenticated]
+    serializer_class = VendorSerializer
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 
 
@@ -103,7 +97,7 @@ class VendorReadDropdown(ListAPIView):
 class VendorMatserCreate(ListCreateAPIView):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
 
@@ -112,7 +106,7 @@ class VendorMatserCreate(ListCreateAPIView):
 class VendorMatserUpdate(RetrieveUpdateDestroyAPIView):
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 
 
@@ -120,13 +114,13 @@ class VendorMatserUpdate(RetrieveUpdateDestroyAPIView):
 class VendorMatserStatusUpdate(RetrieveUpdateAPIView):
     queryset = Vendor.objects.all()
     serializer_class = VendorUpdateStatusSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 
 
 class VendorReadDetailView(RetrieveAPIView):
     serializer_class = VendorReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
     queryset = Vendor.objects.filter(vendor_address__is_deleted=False,vendor_account__is_deleted=False)
 

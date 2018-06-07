@@ -16,6 +16,6 @@ urlpatterns = [
     path('vendor_dropdown/', views.VendorReadDropdown.as_view()),
     path('all_vendor/', views.VendorReadView.as_view()),
     path('all_vendor/<pk>/', views.VendorReadDetailView.as_view()),
-    path('all_vendor_type_dropdown/', views.VendorReadDropdown.as_view()),
+
 
 ]

@@ -19,6 +19,7 @@ class PurchaseOrder(models.Model):
         ('0', 'None'),
     )
 
+    purchase_order_no = models.CharField(max_length=255)
     project=models.ForeignKey(CompanyProject,on_delete=models.SET_NULL,blank=True,null=True)
     requisition=models.ForeignKey(Requisition,on_delete=models.SET_NULL,blank=True,null=True)
     quotation_no=models.CharField(max_length=200)
@@ -36,6 +37,11 @@ class PurchaseOrder(models.Model):
 
     def __str__(self):
         return str(self.created_at)
+
+
+    def requisition_no(self):
+        requisition=Requisition.objects.values_list('requisition_no',flat=True).filter(id=self.requisition)
+        return requisition.values('requisition_no')
 
 
 
@@ -90,12 +96,7 @@ class PurchaseOrderTerms(models.Model):
         return str(self.po_order.created_at)
 
 
-class PurchaseOrderMap(models.Model):
-    po_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='purchase_order_map')
-    purchase_order_no = models.CharField(max_length=255)
 
-    def __str__(self):
-        return str(self.purchase_order_no)
 
 
 

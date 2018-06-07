@@ -12,6 +12,7 @@ class MaterialType(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
 
+
     def __str__(self):
         return str(self.material_type)
 
@@ -27,6 +28,7 @@ class Material(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
+    margin = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return str(self.material_fullname)

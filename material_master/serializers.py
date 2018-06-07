@@ -73,10 +73,6 @@ class MaterialReadSerializer(ModelSerializer):
 
 
 
-
-
-
-
 class MaterialSerializer(ModelSerializer):
 
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -85,10 +81,11 @@ class MaterialSerializer(ModelSerializer):
     material_tax = MaterialTaxSerializer(many=True)
 
 
+
     class Meta:
         model = Material
         fields = ['id','material_fullname','material_type','material_code','description','is_taxable','is_sales','status','created_at',
-                  'is_deleted','material_uom','material_tax','created_by']
+                  'is_deleted','material_uom','material_tax','created_by','margin']
 
     def create(self, validated_data):
         is_taxable = validated_data.get('is_taxable')
@@ -145,6 +142,7 @@ class MaterialSerializer(ModelSerializer):
                     instance.status = validated_data.get('status', instance.status)
                     instance.created_at = validated_data.get('created_at', instance.created_at)
                     instance.is_deleted = validated_data.get('is_deleted', instance.is_deleted)
+                    instance.margin = validated_data.get('margin', instance.margin)
                     instance.save()
 
                     material_uoms_data_ids = list()
@@ -236,6 +234,7 @@ class MaterialSerializer(ModelSerializer):
                     instance.status = validated_data.get('status', instance.status)
                     instance.created_at = validated_data.get('created_at', instance.created_at)
                     instance.is_deleted = validated_data.get('is_deleted', instance.is_deleted)
+                    instance.margin = validated_data.get('margin', instance.margin)
                     instance.save()
 
                     material_uoms_data_ids = list()

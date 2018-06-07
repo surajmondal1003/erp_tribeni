@@ -29,6 +29,7 @@ class Requisition(models.Model):
         return str(self.created_at)
 
 
+
 class RequisitionDetail(models.Model):
     requisition = models.ForeignKey(Requisition, on_delete=models.CASCADE,related_name='requisition_detail')
     material_type = models.ForeignKey(MaterialType, on_delete=models.CASCADE)

@@ -107,3 +107,29 @@ class MaterialReadDetailView(RetrieveAPIView):
 
 
 
+class ProjectSpecificMaterialTypeList(ListAPIView):
+    queryset = MaterialType.objects.filter(status=True,is_deleted=False)
+    serializer_class = MaterialTypeSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    lookup_field = ('project_id')
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        return MaterialType.objects.filter(companyprojectdetail__project=project_id)
+
+
+class ProjectSpecificMaterialList(ListAPIView):
+    queryset = Material.objects.filter(status=True,is_deleted=False)
+    serializer_class = MaterialReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    lookup_field = ('project_id')
+
+    def get_queryset(self):
+        project_id = self.kwargs['project_id']
+        mtype_id = self.kwargs['mtype_id']
+        return Material.objects.filter(companyprojectdetail__project=project_id,material_type=mtype_id)
+
+
+

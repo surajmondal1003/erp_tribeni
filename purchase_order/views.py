@@ -23,7 +23,7 @@ from purchase_order.serializers import (
 
 )
 from django.contrib.auth.models import User
-from purchase_order.models import PurchaseOrderTerms,PurchaseOrderMap,PurchaseOrderFreight,PurchaseOrderDetail,PurchaseOrder
+from purchase_order.models import PurchaseOrderTerms,PurchaseOrderFreight,PurchaseOrderDetail,PurchaseOrder
 
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime,timedelta,time,date
@@ -34,13 +34,12 @@ from django.utils import timezone
 class PurchaseOrderReadView(ListAPIView):
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('requisition__requisition_map__requisition_no', 'purchase_order_map__purchase_order_no', 'company__company_name',
-                     'purchase_order_detail__company_branch__branch_name','purchase_order_detail__storage_location__storage_address',
-                     'purchase_order_detail__storage_bin__bin_no','grand_total')
+    search_fields = ('requisition__requisition_no', 'purchase_order_no', 'company__company_name',
+                     'grand_total','project__project_name')
 
     def get_queryset(self):
         try:
@@ -63,7 +62,7 @@ class PurchaseOrderReadView(ListAPIView):
 class PurchaseOrderReadDetailView(RetrieveAPIView):
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
@@ -73,13 +72,14 @@ class PurchaseOrderReadDetailView(RetrieveAPIView):
 class PurchaseOrderReadDropdown(ListAPIView):
     queryset = PurchaseOrder.objects.filter(status=True, is_approve=1, is_finalised=0)
     serializer_class = PurchaseOrderReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
 class PurchaseOrderMatser(ListCreateAPIView):
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderSerializer
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
@@ -87,32 +87,30 @@ class PurchaseOrderMatser(ListCreateAPIView):
 class PurchaseOrderUpdate(RetrieveUpdateDestroyAPIView):
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderSerializer
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 class PurchaseOrderByRequisition(ListAPIView):
     serializer_class = PurchaseOrderReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         requisition=self.kwargs['requisition']
         return PurchaseOrder.objects.filter(requisition_id=requisition,status=True)
-    # def get_queryset(self):
-    #     requisition=self.kwargs['requisition']
-    #     return PurchaseOrder.objects.filter(requisition_id=requisition)
-
 
 
 class PurchaseOrderUpdateStatus(RetrieveUpdateAPIView):
     queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderUpdateStatusSerializer
-
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class PurchaseOrderSearchView(ListAPIView):
 
     serializer_class = PurchaseOrderReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
 

@@ -13,6 +13,13 @@ from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
 
 
 
+class RequisitionMapSerializer(ModelSerializer):
+
+
+    class Meta:
+        model = Requisition
+        fields = ['requisition_no']
+
 class RequisitionDetailSerializer(ModelSerializer):
 
     #created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -20,7 +27,7 @@ class RequisitionDetailSerializer(ModelSerializer):
 
     class Meta:
         model = RequisitionDetail
-        fields = ['id','requisition','material_type','material','quantity','uom','status']
+        fields = ['id','material_type','material','quantity','uom','status']
 
 
 
@@ -80,7 +87,7 @@ class RequisitionDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = RequisitionDetail
-        fields = ['id','material','quantity','uom','branch','storage_location','storage_bin','status']
+        fields = ['id','material','quantity','uom','status']
 
 
 class RequisitionReadSerializer(ModelSerializer):
@@ -91,8 +98,8 @@ class RequisitionReadSerializer(ModelSerializer):
 
     class Meta:
         model = Requisition
-        fields = ['id','company','purchase_org','purchase_grp','special_note','is_approve','is_finalised','status','created_at','created_by',
-                  'requisition_detail']
+        fields = ['id','company','special_note','is_approve','is_finalised','status','created_at','created_by',
+                  'requisition_detail','requisition_no']
 
 
 
