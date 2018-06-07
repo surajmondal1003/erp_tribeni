@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     # 'purchaseorggroup',
     # 'salesorg_group',
     'material_master',
-    # 'purchase_requisition',
+    'purchase_requisition',
     'gstrates',
     'transporter',
     'vendor',

@@ -7,6 +7,11 @@ from material_master.models import MaterialType,Material
 # Create your models here.
 
 class CompanyProject(models.Model):
+    STATUS_CHOICES = (
+        ('2', 'False'),
+        ('1', 'True'),
+        ('0', 'None'),
+    )
     company=models.ForeignKey(Company,on_delete=models.CASCADE,related_name='company_project')
     project_name=models.CharField(max_length=100)
     description=models.TextField(blank=True,null=True)
@@ -23,6 +28,8 @@ class CompanyProject(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
+    is_approve = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
+    is_finalised = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
 
     def __str__(self):
         return str(self.project_name)
