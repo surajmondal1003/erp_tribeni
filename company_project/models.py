@@ -43,6 +43,7 @@ class CompanyProjectDetail(models.Model):
     quantity = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     boq_ref = models.CharField(max_length=50,blank=True,null=True)
 
+
     def __str__(self):
         return str(self.project)
 
