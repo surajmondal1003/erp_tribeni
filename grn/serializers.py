@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
 import datetime
 
-from grn.models import GRN,GRNDetail
+from grn.models import GRN,GRNDetail,ReversGRN
 from django.contrib.auth.models import User
 from vendor.serializers import VendorAddressSerializer
 from uom.serializers import UOMSerializer
@@ -141,3 +141,40 @@ class GRNUpdateStatusSerializer(ModelSerializer):
             instance.save()
 
             return instance
+
+
+
+
+class ReversGRNSerializer(ModelSerializer):
+
+    created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    status = serializers.BooleanField(default=True)
+
+
+    class Meta:
+        model = ReversGRN
+        fields = ['id','grn','reverse_quantity','created_at','created_by','reverse_reason','status','is_approve','is_finalised']
+
+
+    def create(self, validated_data):
+
+        grn_data = validated_data.pop('grn')
+
+        revers_grn = ReversGRN.objects.create(**validated_data)
+
+        # grn_no = str(datetime.date.today()) + '/GRN-00' + str(grn.id)
+
+        for iter_grn in grn_data:
+            GRNDetail.objects.create(grn=iter_grn, **iter_grn)
+        return revers_grn
+
+    def update(self, instance, validated_data):
+
+            instance.is_approve = validated_data.get('is_approve', instance.is_approve)
+            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+            instance.status = validated_data.get('status', instance.status)
+
+            instance.save()
+
+            return instance
+
