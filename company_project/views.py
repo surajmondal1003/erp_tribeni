@@ -27,7 +27,7 @@ from rest_framework import filters
 class CompanyProjectViewSet(viewsets.ModelViewSet):
     queryset = CompanyProject.objects.filter(is_deleted=False).order_by('-id')
     serializer_class =CompanyProjectSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
@@ -50,113 +50,29 @@ class CompanyProjectViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise
 
+class SpecificCompanyProject(ListAPIView):
 
-
-
-class SpecificCompanyBranchView(ListAPIView):
-
-    serializer_class = CompanyBranchSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
+    serializer_class = CompanyProjectDetailsSerializer
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('branch_name','branch_address','branch_email','branch_gstin','branch_pan','branch_cin','branch_contact_no')
+    search_fields = ('project_name','project_address','project_state__state_name','project_city','project_contact_no')
 
     def get_queryset(self):
         company=self.kwargs['company']
-        return CompanyBranch.objects.filter(company_id=company,is_deleted=False).order_by('-id')
-
-
-
-class CompanyStorageViewSet(viewsets.ModelViewSet):
-    queryset = StorageLocation.objects.filter(is_deleted=False).order_by('-id')
-    serializer_class =CompanyStorageSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-
-
-
-class SpecificCompanyStorageView(ListAPIView):
-
-    serializer_class = CompanyStorageSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('storage_address', 'storage_contact_no', 'storage_email')
-
-    def get_queryset(self):
-        company=self.kwargs['company']
-        return StorageLocation.objects.filter(company_id=company,is_deleted=False).order_by('-id')
-
-
-
-class UOMViewSet(viewsets.ModelViewSet):
-    queryset = UOM.objects.all().order_by('-id')
-    serializer_class =UOMSerializer
-    #permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-
-class CompanyStorageBinViewSet(viewsets.ModelViewSet):
-    queryset = StorageBin.objects.filter(is_deleted=False).order_by('-id')
-    serializer_class =CompanyStorageBinSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-
-
-
-class SpecificCompanyStorageBinView(ListAPIView):
-
-    serializer_class = CompanyStorageBinReadSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('bin_no', 'bin_volume', 'uom__name')
-
-    def get_queryset(self):
-        company=self.kwargs['company']
-        return StorageBin.objects.filter(company_id=company,is_deleted=False).order_by('-id')
+        return CompanyProject.objects.filter(company_id=company,is_deleted=False).order_by('-id')
 
 
 
 
-class SpecificCompanyBranchDropdown(ListAPIView):
+class SpecificCompanyProjectDropdown(ListAPIView):
 
-    serializer_class = CompanyBranchSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
+    serializer_class = CompanyProjectDetailsSerializer
+    permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 
 
     def get_queryset(self):
         company=self.kwargs['company']
-        return CompanyBranch.objects.filter(company_id=company,status=True,is_deleted=False).order_by('-id')
-
-
-
-class SpecificCompanyStorageDropdown(ListAPIView):
-
-    serializer_class = CompanyStorageSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-
-
-    def get_queryset(self):
-        company=self.kwargs['company']
-        return StorageLocation.objects.filter(company_id=company,status=True,is_deleted=False).order_by('-id')
-
-
-class SpecificCompanyStorageBinDropdown(ListAPIView):
-
-    serializer_class = CompanyStorageBinSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-
-
-    def get_queryset(self):
-        company=self.kwargs['company']
-        return StorageBin.objects.filter(company_id=company,status=True,is_deleted=False).order_by('-id')
-
+        return CompanyProject.objects.filter(company_id=company,status=True,is_deleted=False).order_by('-id')

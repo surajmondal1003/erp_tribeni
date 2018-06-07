@@ -44,9 +44,6 @@ class MaterialTypeViewDropdown(ListAPIView):
 
 
 
-
-
-
 class MaterialReadView(ListAPIView):
     queryset = Material.objects.filter(is_deleted=False)
     serializer_class = MaterialReadSerializer

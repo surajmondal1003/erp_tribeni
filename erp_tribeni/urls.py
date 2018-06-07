@@ -39,6 +39,7 @@ from banks import views
 # from designation import views
 # from employee import views
 # from contractor import views
+from company_project import views
 
 
 urlpatterns = [
@@ -65,5 +66,6 @@ urlpatterns = [
     # path('', include('employee.urls')),
     path('', include('contractor.urls')),
     path('', include('uom.urls')),
+    path('', include('company_project.urls')),
     path('admin/', admin.site.urls),
 ]

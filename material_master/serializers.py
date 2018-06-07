@@ -52,8 +52,6 @@ class MaterialReadSerializer(ModelSerializer):
     material_type = MaterialTypeSerializer()
     material_uom = serializers.SerializerMethodField()
     material_tax = serializers.SerializerMethodField()
-    material_purchase_org = serializers.SerializerMethodField()
-    material_purchase_grp = serializers.SerializerMethodField()
 
 
     def get_material_uom(self, obj):
@@ -71,7 +69,7 @@ class MaterialReadSerializer(ModelSerializer):
     class Meta:
         model = Material
         fields = ['id','material_fullname','material_type','material_code','description','is_taxable','is_sales','status','created_at',
-                  'is_deleted','material_uom', 'material_tax']
+                  'is_deleted','material_uom', 'material_tax','created_by']
 
 
 
@@ -90,7 +88,7 @@ class MaterialSerializer(ModelSerializer):
     class Meta:
         model = Material
         fields = ['id','material_fullname','material_type','material_code','description','is_taxable','is_sales','status','created_at',
-                  'is_deleted','material_uom','material_tax']
+                  'is_deleted','material_uom','material_tax','created_by']
 
     def create(self, validated_data):
         is_taxable = validated_data.get('is_taxable')
