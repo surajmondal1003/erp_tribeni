@@ -12,7 +12,8 @@ from authentication.pagination import ErpLimitOffestpagination, ErpPageNumberPag
 
 from company_project.serializers import (
     CompanyProjectSerializer,
-    CompanyProjectDetailsSerializer
+    CompanyProjectDetailsSerializer,
+    CompanyProjectUpdateStatusSerializer
 
 )
 from django.contrib.auth.models import User
@@ -76,3 +77,10 @@ class SpecificCompanyProjectDropdown(ListAPIView):
     def get_queryset(self):
         company=self.kwargs['company']
         return CompanyProject.objects.filter(company_id=company,status=True,is_deleted=False).order_by('-id')
+
+
+class ProjectUpdateStatus(RetrieveUpdateAPIView):
+    queryset = CompanyProject.objects.all()
+    serializer_class = CompanyProjectUpdateStatusSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]

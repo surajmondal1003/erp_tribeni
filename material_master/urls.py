@@ -16,8 +16,4 @@ urlpatterns = [
     path('all_material_master/<pk>/', views.MaterialReadDetailView.as_view()),
     path('all_material_type_dropdown/', views.MaterialTypeViewDropdown.as_view()),
 
-
-
-
-
 ]

@@ -3,11 +3,11 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
 import datetime
 
-from grn.models import GRN,GRNDetail,GRNMap
+from grn.models import GRN,GRNDetail
 from django.contrib.auth.models import User
 from vendor.serializers import VendorAddressSerializer
+from uom.serializers import UOMSerializer
 from purchase_order.serializers import (
-    PurchaseMapSerializer,
     PurchaseOrderSerializer,
     PurchaseDetailSerializer,
     PurchaseOrderReadSerializer,
@@ -18,17 +18,13 @@ from purchase_order.serializers import (
 from rest_framework.relations import StringRelatedField
 from material_master.serializers import MaterialNameSerializer
 from vendor.serializers import VendorNameSerializer
-from purchaseorggroup.serializers import PurchaseOrgSerializer,PurchaseGroupSerializer
+
 from company.serializers import CompanyListSerializer
-from company_branch.serializers import CompanyBranchSerializer,CompanyStorageBinSerializer,CompanyStorageSerializer,UOMSerializer
+from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer,CompanyProjectUpdateStatusSerializer
 from authentication.serializers import UserReadSerializer
 
 
-class GRNMapSerializer(ModelSerializer):
 
-    class Meta:
-        model = GRNMap
-        fields = ['id','grn_no']
 
 
 
@@ -36,8 +32,7 @@ class GRNDetailSerializer(ModelSerializer):
 
     class Meta:
         model = GRNDetail
-        fields = ['id','material','uom','order_quantity','receive_quantity','company_branch','storage_location',
-                  'storage_bin']
+        fields = ['id','material','uom','order_quantity','receive_quantity']
 
 
 
@@ -50,9 +45,10 @@ class GRNSerializer(ModelSerializer):
 
     class Meta:
         model = GRN
-        fields = ['id','po_order','pur_org','pur_grp','company','vendor','vendor_address','waybill_no','vehicle_no',
+        fields = ['id','grn_no','po_order','company','project','vendor','vendor_address','waybill_no','vehicle_no',
                   'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
-                  'created_by','grn_detail']
+                  'created_by','grn_detail','is_deleted']
+
 
 
     def create(self, validated_data):
@@ -67,7 +63,7 @@ class GRNSerializer(ModelSerializer):
             GRNDetail.objects.create(grn=grn, **grn_detail)
 
 
-        GRNMap.objects.create(grn=grn,grn_no=grn_no)
+        # GRNMap.objects.create(grn=grn,grn_no=grn_no)
 
 
         return grn
@@ -87,29 +83,26 @@ class GRNSerializer(ModelSerializer):
 
 class GRNDetailReadSerializer(ModelSerializer):
     material = MaterialNameSerializer(read_only=True)
-    company_branch = CompanyBranchSerializer(read_only=True)
-    storage_location = CompanyStorageSerializer(read_only=True)
-    storage_bin = CompanyStorageBinSerializer(read_only=True)
+    company_project = CompanyProjectSerializer(read_only=True)
     uom = UOMSerializer(read_only=True)
 
     class Meta:
         model = GRNDetail
-        fields = ['id','material','uom','order_quantity','receive_quantity','company_branch','storage_location',
-                  'storage_bin']
+        fields = ['id','material','uom','order_quantity','receive_quantity','project_name']
 
 
 
 
 class GRNReadSerializer(ModelSerializer):
 
-    purchase_order_no=PurchaseMapSerializer(read_only=True,many=True)
+    # purchase_order_no=PurchaseMapSerializer(read_only=True,many=True)
     po_order=PurchaseOrderReadForGRNSerializer(read_only=True)
     company=CompanyListSerializer()
-    pur_org=PurchaseOrgSerializer()
-    pur_grp=PurchaseGroupSerializer()
+    # pur_org=PurchaseOrgSerializer()
+    # pur_grp=PurchaseGroupSerializer()
     vendor=VendorNameSerializer(read_only=True)
     vendor_address=VendorAddressSerializer()
-    grn_map=GRNMapSerializer(read_only=True,many=True)
+    # grn_map=GRNMapSerializer(read_only=True,many=True)
     grn_detail = GRNDetailReadSerializer(many=True)
     created_by = UserReadSerializer()
 

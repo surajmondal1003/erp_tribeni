@@ -51,7 +51,7 @@ urlpatterns = [
     # path('', include('purchaseorggroup.urls')),
     # path('', include('salesorg_group.urls')),
     path('', include('material_master.urls')),
-    # path('', include('purchase_requisition.urls')),
+    path('', include('purchase_requisition.urls')),
     path('', include('gstrates.urls')),
     path('', include('transporter.urls')),
     path('', include('vendor.urls')),
