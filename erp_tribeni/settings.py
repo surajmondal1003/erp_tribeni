@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'banks',
     # 'account_transaction',
     # 'purchase_order',
-    # 'grn',
+    'grn',
     # 'purchase_invoice',
     # 'payment',
     # 'stock',
