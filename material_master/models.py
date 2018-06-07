@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from uom.models import UOM
 
+
 # Create your models here.
 
 class MaterialType(models.Model):

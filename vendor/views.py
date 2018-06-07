@@ -19,7 +19,8 @@ from vendor.serializers import (
     VendorAddressSerializer,
     VendorSerializer,
     VendorUpdateStatusSerializer,
-    VendorReadSerializer
+    VendorReadSerializer,
+    VendorNameSerializer
 
 
 
@@ -94,7 +95,7 @@ class VendorReadView(ListAPIView):
 
 class VendorReadDropdown(ListAPIView):
     queryset = Vendor.objects.filter(status=True,is_deleted=False)
-    serializer_class = VendorTypeSerializer
+    serializer_class = VendorSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 

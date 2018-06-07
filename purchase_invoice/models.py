@@ -1,11 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from grn.models import GRN,GRNMap,GRNDetail
+from grn.models import GRN,GRNDetail
 from purchase_order.models import PurchaseOrder
 from vendor.models import Vendor,VendorAddress
 from company.models import Company
 from material_master.models import Material
-from company_project.models import CompanyProject
 
 # Create your models here.
 
@@ -18,7 +17,6 @@ class PurchaseInvoice(models.Model):
     )
 
     purchase_inv_no = models.CharField(max_length=255)
-    project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True)
     grn=models.ForeignKey(GRN,on_delete=models.SET_NULL,blank=True,null=True)
     po_order=models.ForeignKey(PurchaseOrder,on_delete=models.SET_NULL,blank=True,null=True)
     total_gst=models.DecimalField(max_digits=20,decimal_places=2)
@@ -37,17 +35,15 @@ class PurchaseInvoice(models.Model):
 
 
     def grn_number(self):
-        return GRNMap.objects.filter(grn=self.grn)
+        grn=GRN.objects.values_list('grn_no',flat=True).filter(id=self.grn.id)
+        return grn.values_list('grn_no')
 
     def po_order_no(self):
-        order=PurchaseOrder.objects.values_list('purchase_order_no',flat=True).filter(id=self.po_order)
-        return order.values('purchase_order_no')
+        order=PurchaseOrder.objects.values_list('purchase_order_no',flat=True).filter(id=self.po_order.id)
+        return order.values_list('purchase_order_no')
 
-
-    def grn_material(self):
-        return GRNDetail.objects.filter(grn=self.grn)
-
-
+    # def grn_material(self):
+    #     return GRNDetail.objects.filter(grn=self.grn)
 
 
 
@@ -67,5 +63,6 @@ class PurchaseInvoiceDetail(models.Model):
 
     def __str__(self):
         return str(self.pur_invoice.created_at)
+
 
 

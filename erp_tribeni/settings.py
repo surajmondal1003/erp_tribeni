@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     #'purchase_invoice',
     #'payment',
     'grn',
-    # 'purchase_invoice',
+    'purchase_invoice',
     # 'stock',
     'departments',
     'designation',

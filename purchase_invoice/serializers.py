@@ -1,26 +1,16 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
-from company_branch.serializers import UOMSerializer
+from uom.serializers import UOMSerializer
 import datetime
-
-from purchase_invoice.models import PurchaseInvoice,PurchaseInvoiceDetail,PurchaseInvoiceMap
+from purchase_invoice.models import PurchaseInvoice,PurchaseInvoiceDetail
 from django.contrib.auth.models import User
-from grn.serializers import GRNMapSerializer,GRNDetailReadSerializer,GRNReadSerializer,GRNCreateBySerializer
-from purchase_order.serializers import PurchaseMapSerializer,PurchaseDetailSerializer
+from grn.serializers import GRNDetailReadSerializer,GRNReadSerializer,GRNCreateBySerializer
+from purchase_order.serializers import PurchaseDetailSerializer,PurchaseOrderSerializer
 from company.serializers import CompanyListSerializer
 from material_master.serializers import MaterialNameSerializer
 from vendor.serializers import VendorNameSerializer,VendorAddressSerializer
-from purchaseorggroup.serializers import PurchaseOrgSerializer,PurchaseGroupSerializer
 from django.core.mail import send_mail
-
-
-class PurchaseInvoiceMapSerializer(ModelSerializer):
-
-    class Meta:
-        model = PurchaseInvoiceMap
-        fields = ['id','purchase_inv_no']
-
 
 
 
@@ -33,7 +23,6 @@ class PurchaseInvoiceDetailSerializer(ModelSerializer):
 
 
 
-
 class PurchaseInvoiceSerializer(ModelSerializer):
 
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -43,10 +32,9 @@ class PurchaseInvoiceSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id','grn','po_order','pur_org','pur_grp','total_gst','total_amount','vendor','vendor_address',
+        fields = ['id','grn','po_order','total_gst','total_amount','vendor','vendor_address',
                   'company','is_approve','is_finalised','status','created_at','created_by',
-                  'pur_invoice_detail']
-
+                  'pur_invoice_detail','purchase_inv_no']
 
     def create(self, validated_data):
 
@@ -54,13 +42,9 @@ class PurchaseInvoiceSerializer(ModelSerializer):
 
         po_invoice = PurchaseInvoice.objects.create(**validated_data)
 
-        purchase_invoice_no = str(datetime.date.today()) + '/INV-00' + str(po_invoice.id)
 
         for purchase_invoice_detail in purchase_invoice_detail_data:
             PurchaseInvoiceDetail.objects.create(pur_invoice=po_invoice, **purchase_invoice_detail)
-
-
-        PurchaseInvoiceMap.objects.create(pur_invoice=po_invoice, purchase_inv_no=purchase_invoice_no)
 
 
 
@@ -105,21 +89,16 @@ class PurchaseInvoiceReadSerializer(ModelSerializer):
 
 
     grn= GRNCreateBySerializer(read_only=True)
-    grn_number = GRNMapSerializer(read_only=True,many=True)
     pur_invoice_detail=PurchaseInvoiceReadDetailSerializer(many=True)
-    pur_invoice_map=PurchaseInvoiceMapSerializer(many=True)
-    po_order_no = PurchaseMapSerializer(many=True,read_only=True)
-    pur_org = PurchaseOrgSerializer()
-    pur_grp = PurchaseGroupSerializer()
     company = CompanyListSerializer()
     vendor = VendorNameSerializer(read_only=True)
     vendor_address = VendorAddressSerializer()
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id','grn','grn_number',  'po_order','po_order_no','pur_org','pur_grp','total_gst','total_amount','vendor','vendor_address',
+        fields = ['id','grn','po_order','total_gst','total_amount','vendor','vendor_address',
                   'company','is_approve','is_finalised','status','created_at','created_by',
-                  'pur_invoice_detail','pur_invoice_map']
+                  'pur_invoice_detail','purchase_inv_no','po_order_no','grn_number']
 
 
 

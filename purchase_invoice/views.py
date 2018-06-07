@@ -20,7 +20,7 @@ from purchase_invoice.serializers import (
 
 )
 from django.contrib.auth.models import User
-from purchase_invoice.models import PurchaseInvoice,PurchaseInvoiceDetail,PurchaseInvoiceMap
+from purchase_invoice.models import PurchaseInvoice,PurchaseInvoiceDetail
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -30,12 +30,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 class PurchaseInvoiceReadView(ListAPIView):
     queryset = PurchaseInvoice.objects.all()
     serializer_class = PurchaseInvoiceReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('company__company_name','po_order__purchase_order_map__purchase_order_no','pur_invoice_map__purchase_inv_no',
-                      'grn__grn_map__grn_no')
+    search_fields = ('company__company_name','purchase_inv_no',
+                      )
 
     def get_queryset(self):
         try:
@@ -58,7 +58,7 @@ class PurchaseInvoiceReadView(ListAPIView):
 class PurchaseInvoiceReadDetailView(RetrieveAPIView):
     queryset = PurchaseInvoice.objects.all()
     serializer_class = PurchaseInvoiceReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
@@ -66,7 +66,7 @@ class PurchaseInvoiceReadDetailView(RetrieveAPIView):
 class PurchaseInvoiceMatser(ListCreateAPIView):
     queryset = PurchaseInvoice.objects.all()
     serializer_class = PurchaseInvoiceSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
@@ -76,16 +76,15 @@ class PurchaseInvoiceMatser(ListCreateAPIView):
 class PurchaseInvoiceUpdate(RetrieveUpdateDestroyAPIView):
     queryset = PurchaseInvoice.objects.all()
     serializer_class = PurchaseInvoiceSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
 
 class CompanySpecificPurchaseInvoiceDropdown(ListAPIView):
-    # queryset = PurchaseInvoice.objects.filter(status=True, is_approve=1, is_finalised=0)
-    queryset = PurchaseInvoice.objects.all()
+    queryset = PurchaseInvoice.objects.filter(status=True, is_approve=1, is_finalised=0)
     serializer_class = PurchaseInvoiceReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
@@ -96,3 +95,5 @@ class CompanySpecificPurchaseInvoiceDropdown(ListAPIView):
 class PurchaseInvoiceUpdateStatus(RetrieveUpdateAPIView):
     queryset = PurchaseInvoice.objects.all()
     serializer_class = InvoiceUpdateStatusSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]

@@ -38,9 +38,8 @@ class PurchaseOrder(models.Model):
     def __str__(self):
         return str(self.created_at)
 
-
     def requisition_no(self):
-        requisition=Requisition.objects.values_list('requisition_no',flat=True).filter(id=self.requisition)
+        requisition=Requisition.objects.values_list('requisition_no',flat=True).filter(id=self.requisition.id)
         return requisition.values('requisition_no')
 
 

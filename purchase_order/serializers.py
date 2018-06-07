@@ -33,7 +33,7 @@ class PurchaseDetailSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrderDetail
-        fields = ['id','company_branch','storage_location','storage_bin','material','uom','requisition_quantity',
+        fields = ['id','material','uom','requisition_quantity',
                   'order_quantity', 'rate', 'material_value', 'discount_percent', 'discount_value', 'igst',
                   'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date']
 
@@ -51,7 +51,7 @@ class PurchaseOrderSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id','requisition','quotation_no','quotation_date','pur_org','pur_grp','company','vendor','vendor_address',
+        fields = ['id','requisition','quotation_no','quotation_date','company','vendor','vendor_address',
                   'grand_total','grand_total_words','is_approve','is_finalised','status','created_at','created_by',
                   'purchase_order_detail','purchase_order_freight','purchase_order_terms']
 
@@ -104,7 +104,7 @@ class PurchaseDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrderDetail
-        fields = ['id','company_branch','storage_location','storage_bin','material','uom','requisition_quantity',
+        fields = ['id','material','uom','requisition_quantity',
                   'order_quantity', 'rate', 'material_value', 'discount_percent', 'discount_value', 'igst',
                   'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date']
 
@@ -134,9 +134,9 @@ class PurchaseOrderReadSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id','requisition_no','quotation_no','quotation_date','pur_org','pur_grp','company','vendor','vendor_address',
+        fields = ['id','quotation_no','quotation_date','company','vendor','vendor_address',
                   'grand_total','grand_total_words','is_approve','is_finalised','status','created_at','created_by',
-                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no']
+                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition_no']
 
 
 class PurchaseDetailReadForGRNSerializer(ModelSerializer):
@@ -144,7 +144,7 @@ class PurchaseDetailReadForGRNSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrderDetail
-        fields = ['id','company_branch','storage_location','storage_bin','material','uom','requisition_quantity',
+        fields = ['id','material','uom','requisition_quantity',
                   'order_quantity', 'rate', 'material_value', 'discount_percent', 'discount_value', 'igst',
                   'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date']
 
@@ -154,12 +154,9 @@ class PurchaseOrderReadForGRNSerializer(ModelSerializer):
 
     purchase_order_detail = PurchaseDetailReadSerializer(many=True)
 
-
-
     class Meta:
         model = PurchaseOrder
-        fields = ['id','purchase_order_detail','purchase_order_map']
-
+        fields = ['id','purchase_order_detail']
 
 class PurchaseOrderUpdateStatusSerializer(ModelSerializer):
 

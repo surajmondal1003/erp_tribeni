@@ -43,6 +43,11 @@ class RequisitionDetail(models.Model):
         return str(self.requisition.created_at)
 
 
+    def material_rate(self):
+        rate=CompanyProjectDetail.objects.values_list('rate',flat=True).filter(material=self.material)
+        value=rate.values('rate')
+        return value
+
 
 
 

@@ -42,7 +42,7 @@ class CompanyProjectDetail(models.Model):
     material = models.ForeignKey(Material, on_delete=models.SET_NULL, blank=True, null=True)
     quantity = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     boq_ref = models.CharField(max_length=50,blank=True,null=True)
-
+    rate=models.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
 
     def __str__(self):
         return str(self.project)

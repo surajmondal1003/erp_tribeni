@@ -9,7 +9,7 @@ from rest_framework.validators import UniqueValidator
 class CompanyProjectDetailsSerializer(ModelSerializer):
     class Meta:
         model = CompanyProjectDetail
-        fields = ['id','project','materialtype','material','quantity','boq_ref']
+        fields = ['id','project','materialtype','material','quantity','boq_ref','rate']
 
 
 

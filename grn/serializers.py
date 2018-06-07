@@ -35,7 +35,6 @@ class GRNDetailSerializer(ModelSerializer):
         fields = ['id','material','uom','order_quantity','receive_quantity']
 
 
-
 class GRNSerializer(ModelSerializer):
 
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -89,18 +88,15 @@ class GRNDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = GRNDetail
-        fields = ['id','material','uom','order_quantity','receive_quantity','project_name']
+        fields = ['id','material','uom','order_quantity','receive_quantity','company_project']
 
 
 
 
 class GRNReadSerializer(ModelSerializer):
 
-    # purchase_order_no=PurchaseMapSerializer(read_only=True,many=True)
     po_order=PurchaseOrderReadForGRNSerializer(read_only=True)
     company=CompanyListSerializer()
-    # pur_org=PurchaseOrgSerializer()
-    # pur_grp=PurchaseGroupSerializer()
     vendor=VendorNameSerializer(read_only=True)
     vendor_address=VendorAddressSerializer()
     grn_detail = GRNDetailReadSerializer(many=True)
@@ -109,9 +105,9 @@ class GRNReadSerializer(ModelSerializer):
 
     class Meta:
         model = GRN
-        fields = ['id', 'grn_no','purchase_order_no','po_order','pur_org','pur_grp','company','project','vendor','vendor_address',
-                  'waybill_no','vehicle_no','check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
-                  'created_by','is_deleted','grn_detail']
+        fields = ['id','grn_no','po_order','company','project','vendor','vendor_address','waybill_no','vehicle_no',
+                  'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
+                  'created_by','grn_detail','is_deleted','purchase_order_no']
 
 
 class GRNCreateBySerializer(ModelSerializer):
@@ -162,9 +158,6 @@ class ReversGRNSerializer(ModelSerializer):
 
         revers_gen_no = str(datetime.date.today()) + '/REGRN-00' + str(revers_grn.id)
 
-        for iter_grn in grn_data:
-            GRNDetail.objects.create(grn=iter_grn, **iter_grn)
-
         revers_grn.revers_gen_no = revers_gen_no
         revers_grn.save()
         return revers_gen_no
@@ -178,4 +171,13 @@ class ReversGRNSerializer(ModelSerializer):
             instance.save()
 
             return instance
+
+class ReversGRNReadSerializer(ModelSerializer):
+    # grn = GRNReadSerializer(many=True)
+    created_by = UserReadSerializer()
+    class Meta:
+        model = ReversGRN
+        fields = ['id', 'grn','revers_gen_no','reverse_quantity','created_at','created_by','reverse_reason','status','is_approve',
+                  'is_finalised']
+
 

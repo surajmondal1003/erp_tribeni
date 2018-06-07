@@ -10,7 +10,8 @@ from material_master.serializers import MaterialNameSerializer,MaterialReadSeria
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer
 from uom.serializers import UOMSerializer
 from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
-
+from company_project.serializers import CompanyProjectSerializer
+from company_project.models import CompanyProjectDetail
 
 
 class RequisitionMapSerializer(ModelSerializer):
@@ -87,7 +88,7 @@ class RequisitionDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = RequisitionDetail
-        fields = ['id','material','quantity','uom','status']
+        fields = ['id','material','quantity','uom','status','material_rate']
 
 
 class RequisitionReadSerializer(ModelSerializer):
@@ -95,14 +96,12 @@ class RequisitionReadSerializer(ModelSerializer):
     requisition_detail=RequisitionDetailReadSerializer(many=True)
     company=CompanyListSerializer()
     created_by=UserReadSerializer()
+    project=CompanyProjectSerializer()
 
     class Meta:
         model = Requisition
         fields = ['id','company','special_note','is_approve','is_finalised','status','created_at','created_by',
-                  'requisition_detail','requisition_no']
-
-
-
+                  'requisition_detail','requisition_no','project']
 
 
 class RequisitionUpdateStatusSerializer(ModelSerializer):

@@ -19,7 +19,8 @@ from grn.serializers import (
     GRNDetailSerializer,
     GRNReadSerializer,
     GRNUpdateStatusSerializer,
-    ReversGRNSerializer
+    ReversGRNSerializer,
+    ReversGRNReadSerializer
 
 )
 from django.contrib.auth.models import User
@@ -32,12 +33,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 class GRNReadViewList(ListAPIView):
     queryset = GRN.objects.filter(is_deleted=False)
     serializer_class = GRNReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('grn_map__grn_no','company__company_name','pur_org__name','pur_grp__name','vendor__vendor_fullname',
-                     'vendor_address__address','po_order__purchase_order_map__purchase_order_no')
+    search_fields = ('grn_no','company__company_name','vendor__vendor_fullname',
+                     'vendor_address__address')
 
 
     def get_queryset(self):
@@ -57,36 +58,22 @@ class GRNReadViewList(ListAPIView):
             raise
 
 
-
-
 class GRNReadViewDropdown(ListAPIView):
     queryset = GRN.objects.filter(status=True, is_approve=1, is_finalised=0,is_deleted=False)
     serializer_class = GRNReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
-
 
 
 class GRNReadViewDetail(RetrieveAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
-
 
 class GRNCreate(ListCreateAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
-    authentication_classes = [TokenAuthentication]
-    pagination_class = ErpPageNumberPagination
-
-
-class ReversGRNCreate(ListCreateAPIView):
-    queryset = ReversGRN.objects.all()
-    serializer_class = ReversGRNSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
@@ -95,20 +82,18 @@ class ReversGRNCreate(ListCreateAPIView):
 class GRNUpdate(RetrieveUpdateDestroyAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNSerializer
-    #permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
 
 class GRNByPurchaseOrder(ListAPIView):
     serializer_class = GRNReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         po_order=self.kwargs['po_order']
         return GRN.objects.filter(po_order_id=po_order,status=True,is_deleted=False)
-    # def get_queryset(self):
-    #     requisition=self.kwargs['requisition']
-    #     return PurchaseOrder.objects.filter(requisition_id=requisition)
+
 
 
 class GRNUpdateStatus(RetrieveUpdateAPIView):
@@ -119,7 +104,7 @@ class GRNUpdateStatus(RetrieveUpdateAPIView):
 class GRNSearchView(ListAPIView):
 
     serializer_class = GRNReadSerializer
-    # permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated,IsAdminUser]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
 
@@ -172,4 +157,54 @@ class GRNSearchView(ListAPIView):
             queryset = queryset.filter(created_at__gte=created_from_date,created_at__lte=created_to_date)
 
         return queryset
+
+
+
+
+class ReversGRNCreate(ListCreateAPIView):
+    queryset = ReversGRN.objects.all()
+    serializer_class = ReversGRNSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = ErpPageNumberPagination
+
+
+
+class ReversGRNReadViewList(ListAPIView):
+    queryset = ReversGRN.objects.all()
+    serializer_class = ReversGRNReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = ErpPageNumberPagination
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('revers_gen_no','reverse_quantity')
+
+    def get_queryset(self):
+        try:
+            order_by = self.request.query_params.get('order_by', None)
+            field_name = self.request.query_params.get('field_name', None)
+
+            if order_by and order_by.lower() == 'desc' and field_name:
+                queryset = ReversGRN.objects.all().order_by('-' + field_name)
+            elif order_by and order_by.lower() == 'asc' and field_name:
+                queryset = ReversGRN.objects.all().order_by(field_name)
+            else:
+                queryset = ReversGRN.objects.all().order_by('-id')
+            return queryset
+
+        except Exception as e:
+            raise
+
+class ReversGRNUpdate(RetrieveUpdateDestroyAPIView):
+    queryset = GRN.objects.all()
+    serializer_class = ReversGRNSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class ReversGRNReadViewDetail(RetrieveAPIView):
+    queryset = ReversGRN.objects.all()
+    serializer_class = ReversGRNReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
