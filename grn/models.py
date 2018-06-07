@@ -55,6 +55,26 @@ class GRNDetail(models.Model):
     def __str__(self):
         return str(self.grn.created_at)
 
+class ReversGRN(models.Model):
+    STATUS_CHOICES = (
+        ('2', 'False'),
+        ('1', 'True'),
+        ('0', 'None'),
+    )
+    grn = models.ForeignKey(GRN, on_delete=models.CASCADE)
+    reverse_quantity = models.DecimalField(max_digits=20, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    status = models.BooleanField(default=True)
+    is_approve = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
+    is_finalised = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
+
+
+    def __str__(self):
+        return str(self.created_at)
+
+
+
 
 
 
