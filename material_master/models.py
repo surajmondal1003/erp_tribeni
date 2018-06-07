@@ -43,7 +43,7 @@ class Material_UOM(models.Model):
     material=models.ForeignKey(Material,on_delete=models.CASCADE,related_name='material_uom')
     material_for=models.CharField(max_length=1,choices=MATERIAL_CHOICES,default='1')
     base_uom=models.ForeignKey(UOM,on_delete=models.SET_NULL,blank=True,null=True,related_name='base_uom')
-    unit_per_uom=models.DecimalField(max_digits=10,decimal_places=2)
+    unit_per_uom=models.DecimalField(max_digits=10,decimal_places=2 , blank=True,null=True)
     unit_uom=models.ForeignKey(UOM,on_delete=models.SET_NULL,blank=True,null=True,related_name='unit_uom')
     is_deleted = models.BooleanField(default=False)
 

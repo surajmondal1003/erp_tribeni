@@ -148,6 +148,7 @@ class MaterialSerializer(ModelSerializer):
                     instance.save()
 
                     material_uoms_data_ids = list()
+                    # print(material_uoms_data)
                     for material_uoms_data_id in material_uoms_data:
                         if material_uoms_data_id['id']:
                             material_uoms_data_ids.append(material_uoms_data_id['id'])
