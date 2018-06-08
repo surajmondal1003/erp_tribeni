@@ -44,8 +44,6 @@ class PurchaseOrder(models.Model):
 
 
 
-
-
 class PurchaseOrderDetail(models.Model):
     po_order=models.ForeignKey(PurchaseOrder,on_delete=models.CASCADE,related_name='purchase_order_detail')
     material_type = models.ForeignKey(MaterialType, on_delete=models.SET_NULL, blank=True, null=True)

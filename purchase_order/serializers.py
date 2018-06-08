@@ -101,6 +101,7 @@ class PurchaseOrderSerializer(ModelSerializer):
 class PurchaseDetailReadSerializer(ModelSerializer):
 
     material=MaterialNameSerializer(read_only=True)
+    uom=UOMSerializer(read_only=True)
 
     class Meta:
         model = PurchaseOrderDetail
@@ -130,7 +131,6 @@ class PurchaseOrderReadSerializer(ModelSerializer):
     purchase_order_terms = PurchseTermsReadSerializer(many=True)
     vendor=VendorNameSerializer(read_only=True)
     vendor_address=VendorAddressSerializer(read_only=True)
-
 
     class Meta:
         model = PurchaseOrder

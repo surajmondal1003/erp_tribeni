@@ -13,6 +13,5 @@ urlpatterns = [
     path('purchase_requistion_status/<pk>/', views.RequisitionUpdateStatus.as_view()),
     path('purchase_requistion_dropdown/', views.RequisitionReadDropdown.as_view()),
     path('purchase_requistion_search/', views.RequisitioSearchView.as_view()),
-
-
+    path('purchase_requistion_by_project/<project>/', views.RequisitioByprojectView.as_view()),
 ]

@@ -53,13 +53,29 @@ class RequisitionSerializer(ModelSerializer):
 
 
             requisition_no=str(datetime.date.today())+'/I-00'+str(requisition.id)
-            print(requisition_no)
+
 
             for requisition_data in requisitions_data:
-                RequisitionDetail.objects.create(requisition=requisition,**requisition_data)
+                detail=RequisitionDetail.objects.create(requisition=requisition,**requisition_data)
+                req_qty=detail.quantity
+                #material=CompanyProjectDetail.objects.values_list('id','material','avail_qty').filter(material=detail.material,compan)
+                #print(material.query)
+                # project_qty=0
+                # for i in material.values_list('avail_qty'):
+                #     project_qty=i
+                #
+                # avail_qty=project_qty[0]-req_qty
+                # #print(project_qty[0])
+                # print(avail_qty)
+
+                # for obj in material:
+                #     obj.avail_qty = avail_qty
+                #     obj.save()
 
             requisition.requisition_no=requisition_no
             requisition.save()
+
+
 
 
             return requisition
@@ -120,3 +136,29 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
             return instance
 
 
+
+
+class RequisitionDetailReadForPreviuosPurchaseSerializer(ModelSerializer):
+
+    #created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    status = serializers.BooleanField(default=True)
+    material=MaterialNameSerializer(read_only=True)
+    uom=UOMSerializer(read_only=True)
+
+
+    class Meta:
+        model = RequisitionDetail
+        fields = ['id','material','quantity','uom','status','material_rate','project_material_quantity']
+
+
+class RequisitionReadSerializerForPreviuosPurchase(ModelSerializer):
+
+    requisition_detail=RequisitionDetailReadForPreviuosPurchaseSerializer(many=True)
+    company=CompanyListSerializer()
+    created_by=UserReadSerializer()
+    project=CompanyProjectSerializer()
+
+    class Meta:
+        model = Requisition
+        fields = ['id','company','special_note','is_approve','is_finalised','status','created_at','created_by',
+                  'requisition_detail','requisition_no','project']

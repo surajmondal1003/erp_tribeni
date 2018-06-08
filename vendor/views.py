@@ -135,8 +135,12 @@ class VendorReadDetailView(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         vendor_id = self.kwargs['pk']
         #queryset = Vendor.objects.filter(id=vendor_id, vendor_address__is_deleted=False)
-        queryset = Vendor.objects.filter(id=vendor_id, vendor_address__is_deleted=False,vendor_account__is_deleted=False)
+        queryset = Vendor.objects.filter(Q(id=vendor_id), (Q(vendor_address__is_deleted=False)|Q(vendor_account__is_deleted=False)))
         serializer = VendorReadSerializer(queryset,many=True)
         #print(queryset.query)
-        return Response(serializer.data[0])
+        print(len(serializer.data))
+        if (len(serializer.data) > 0):
+            return Response(serializer.data[0])
+        else:
+            return Response([])
 

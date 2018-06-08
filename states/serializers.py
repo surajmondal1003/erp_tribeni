@@ -23,3 +23,11 @@ class StateSerializer(ModelSerializer):
     class Meta:
         model = State
         fields = ['id','state_name','tin_number','state_code','created_at','user','status','is_deleted']
+
+
+
+class StateNameSerializer(ModelSerializer):
+
+    class Meta:
+        model = State
+        fields = ['id','state_name']

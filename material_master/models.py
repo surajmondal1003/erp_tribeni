@@ -17,6 +17,12 @@ class MaterialType(models.Model):
     def __str__(self):
         return str(self.material_type)
 
+    def material_type_id(self):
+        return self.id
+
+    def material_type_name(self):
+        return self.material_type
+
 
 class Material(models.Model):
     material_fullname=models.CharField(max_length=100)
