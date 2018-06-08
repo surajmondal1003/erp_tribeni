@@ -82,7 +82,7 @@ class GRNCreate(ListCreateAPIView):
 class GRNUpdate(RetrieveUpdateDestroyAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 class GRNByPurchaseOrder(ListAPIView):
@@ -99,6 +99,8 @@ class GRNByPurchaseOrder(ListAPIView):
 class GRNUpdateStatus(RetrieveUpdateAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNUpdateStatusSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class GRNSearchView(ListAPIView):
@@ -195,7 +197,7 @@ class ReversGRNReadViewList(ListAPIView):
         except Exception as e:
             raise
 
-class ReversGRNUpdate(RetrieveUpdateDestroyAPIView):
+class ReversGRNUpdateStatus(RetrieveUpdateDestroyAPIView):
     queryset = GRN.objects.all()
     serializer_class = ReversGRNSerializer
     permission_classes = [IsAuthenticated]
