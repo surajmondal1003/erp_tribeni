@@ -52,7 +52,7 @@ class MaterialReadView(ListAPIView):
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('material_fullname','material_uom__base_uom__name','material_uom__unit_uom__name','material_tax__igst',
-                     'material_tax__cgst','material_tax__sgst','material_tax__hsn')
+                     'material_tax__cgst','material_tax__sgst','material_tax__hsn', 'material_type__material_type')
 
     def get_queryset(self):
 
@@ -78,6 +78,7 @@ class MaterialMatser(ListCreateAPIView):
     serializer_class = MaterialSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
 
 
 

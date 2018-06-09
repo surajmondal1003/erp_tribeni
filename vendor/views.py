@@ -40,9 +40,7 @@ class VendorTypeViewSet(viewsets.ModelViewSet):
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('vendor_type',)
-
     def get_queryset(self):
-
         try:
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
@@ -52,7 +50,7 @@ class VendorTypeViewSet(viewsets.ModelViewSet):
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = VendorType.objects.filter(is_deleted=False).order_by(field_name)
             else:
-                queryset = VendorType.objects.filter(is_deleted=False).order_by('-id')
+                queryset = VendorType.objects.filter(is_deleted=False).order_by('vendor_type')
             return queryset
 
         except Exception as e:
@@ -73,7 +71,8 @@ class VendorReadView(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('vendor_fullname','pan_no','gst_no','cin_no','vendor_address__mobile')
+    # search_fields = ('vendor_fullname','pan_no','gst_no','cin_no','vendor_address__mobile')
+    search_fields = ('vendor_fullname','pan_no','vendor_address__email','cin_no','vendor_address__mobile')
 
     def get_queryset(self):
 

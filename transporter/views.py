@@ -42,7 +42,7 @@ class TransportViewSet(viewsets.ModelViewSet):
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = Transport.objects.filter(is_deleted=False).order_by(field_name)
             else:
-                queryset = Transport.objects.filter(is_deleted=False).order_by('-id')
+                queryset = Transport.objects.filter(is_deleted=False).order_by('transporter_name')
             return queryset
 
         except Exception as e:
