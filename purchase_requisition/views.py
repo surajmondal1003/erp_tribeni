@@ -121,6 +121,7 @@ class RequisitioSearchView(ListAPIView):
         from_date=self.request.query_params.get('from_date', None)
         to_date=self.request.query_params.get('to_date', None)
         created_at=self.request.query_params.get('created_at', None)
+        project=self.request.query_params.get('project', None)
 
 
         if project_name is not None:
@@ -134,6 +135,9 @@ class RequisitioSearchView(ListAPIView):
 
         if approve is not None:
             queryset = queryset.filter(is_approve=approve)
+
+        if project is not None:
+            queryset = queryset.filter(project=project)
 
         if created_at is not None:
 

@@ -32,7 +32,7 @@ class PurchaseInvoiceSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id','grn','po_order','total_gst','total_amount','vendor','vendor_address',
+        fields = ['id','grn','total_gst','total_amount','vendor','vendor_address',
                   'company','is_approve','is_finalised','status','created_at','created_by',
                   'pur_invoice_detail','purchase_inv_no']
 
@@ -56,7 +56,7 @@ class PurchaseInvoiceSerializer(ModelSerializer):
             send_mail(
                 'Test Subject',
                 text_message,
-                'surajmondal1003@gmail.com',
+                'admin@gmail.com',
                 [ each_user ],
                 fail_silently=False,
             )
@@ -96,9 +96,9 @@ class PurchaseInvoiceReadSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseInvoice
-        fields = ['id','grn','po_order','total_gst','total_amount','vendor','vendor_address',
+        fields = ['id','grn','total_gst','total_amount','vendor','vendor_address',
                   'company','is_approve','is_finalised','status','created_at','created_by',
-                  'pur_invoice_detail','purchase_inv_no','po_order_no','grn_number']
+                  'pur_invoice_detail','purchase_inv_no','grn_number','po_order_no','project_name']
 
 
 

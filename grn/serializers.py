@@ -114,7 +114,7 @@ class GRNReadSerializer(ModelSerializer):
         model = GRN
         fields = ['id','grn_no','po_order','company','vendor','vendor_address','waybill_no','vehicle_no',
                   'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
-                  'created_by','grn_detail','is_deleted','purchase_order_no']
+                  'created_by','grn_detail','is_deleted','purchase_order_no','project_name']
 
 
 class GRNCreateBySerializer(ModelSerializer):

@@ -20,7 +20,6 @@ class PurchaseOrder(models.Model):
     )
 
     purchase_order_no = models.CharField(max_length=255)
-    project=models.ForeignKey(CompanyProject,on_delete=models.SET_NULL,blank=True,null=True)
     requisition=models.ForeignKey(Requisition,on_delete=models.SET_NULL,blank=True,null=True)
     quotation_no=models.CharField(max_length=200)
     quotation_date=models.DateTimeField()
