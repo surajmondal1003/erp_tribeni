@@ -40,6 +40,8 @@ class PurchaseOrderReadView(ListAPIView):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('requisition__requisition_no', 'purchase_order_no', 'company__company_name',
                      'grand_total','project__project_name')
+    # requisition_no
+    # requisition_no
 
     def get_queryset(self):
         try:

@@ -37,7 +37,7 @@ class GRNReadViewList(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('grn_no','po_order__id','company__company_name','vendor__vendor_fullname',
+    search_fields = ('grn_no','po_order__purchase_order_no','company__company_name','vendor__vendor_fullname',
                      'vendor_address__address')
 
 
