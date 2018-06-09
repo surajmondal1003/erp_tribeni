@@ -30,7 +30,7 @@ class BankReadView(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('bank_name','company__company_name','bank_branch','bank_ifsc','status','created_at')
+    search_fields = ('bank_name','company__company_name','bank_branch','bank_ifsc')
 
     def get_queryset(self):
         try:
