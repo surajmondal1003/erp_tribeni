@@ -10,6 +10,8 @@ from authentication.serializers import UserReadSerializer
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer
 from rest_framework.relations import StringRelatedField
 from vendor.serializers import VendorAddressSerializer,VendorNameSerializer
+from purchase_requisition.models import Requisition
+from purchase_requisition.serializers import RequisitionProjectNameSerializer
 
 
 
@@ -119,10 +121,6 @@ class PurchseTermsReadSerializer(ModelSerializer):
         fields = ['id','po_terms']
 
 
-
-
-
-
 class PurchaseOrderReadSerializer(ModelSerializer):
     company=CompanyListSerializer()
     created_by=UserReadSerializer()
@@ -131,12 +129,13 @@ class PurchaseOrderReadSerializer(ModelSerializer):
     purchase_order_terms = PurchseTermsReadSerializer(many=True)
     vendor=VendorNameSerializer(read_only=True)
     vendor_address=VendorAddressSerializer(read_only=True)
+    requisition=RequisitionProjectNameSerializer(read_only=True)
 
     class Meta:
         model = PurchaseOrder
         fields = ['id','quotation_no','quotation_date','company','vendor','vendor_address',
                   'grand_total','grand_total_words','is_approve','is_finalised','status','created_at','created_by',
-                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition_no']
+                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition']
 
 
 class PurchaseDetailReadForGRNSerializer(ModelSerializer):

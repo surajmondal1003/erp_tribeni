@@ -79,7 +79,7 @@ class CompanyProjectReadSerializer(ModelSerializer):
     status=serializers.BooleanField(default=True)
     project_details=CompanyProjectDetailsReadSerializer(many=True)
     #project_contact_no=serializers.IntegerField(required=False,allow_null=True,allow_bla)
-    project_state=StateNameSerializer(read_only=True,many=True)
+    project_state=StateNameSerializer(read_only=True)
     class Meta:
         model = CompanyProject
         fields = ['id','company','project_name','description','project_address','project_state','project_city','project_pincode',
