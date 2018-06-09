@@ -296,7 +296,9 @@ class MaterialSerializer(ModelSerializer):
                             tax.save()
 
                         elif tax_data['id'] is None:
-                            Material_Tax.objects.create(material=instance, **tax_data)
+                            mat=Material_Tax.objects.create(material=instance, **tax_data)
+                            mat.is_deleted=True
+                            mat.save()
 
                     for delete_id in tax_deleteable_ids:
                         tax = Material_Tax.objects.get(pk=delete_id)
@@ -309,7 +311,8 @@ class MaterialSerializer(ModelSerializer):
 
 class MaterialNameSerializer(ModelSerializer):
     material_tax = MaterialTaxSerializer(many=True)
+    material_type = MaterialTypeSerializer(read_only=True)
 
     class Meta:
         model = Material
-        fields = ['id','material_fullname','material_code','material_tax']
+        fields = ['id','material_type_id','material_type','material_fullname','material_code','material_tax']

@@ -11,19 +11,19 @@ from authentication.pagination import ErpLimitOffestpagination, ErpPageNumberPag
 from django_filters.rest_framework import filters
 from rest_framework import filters
 
-
 from material_master.serializers import (
     MaterialTypeSerializer,
     MaterialSerializer,
     MaterialReadSerializer,
-    MaterialUOMSerializerforRead
+    MaterialUOMSerializerforRead,
+    MaterialNameSerializer
 
 
 )
 from django.contrib.auth.models import User
 from material_master.models import MaterialType,Material,Material_Tax,Material_UOM
-
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
 
 
 
@@ -97,13 +97,15 @@ class MaterialReadDetailView(RetrieveAPIView):
 
 
     def retrieve(self, request, *args, **kwargs):
-        vendor_id = self.kwargs['pk']
-        #queryset = Vendor.objects.filter(id=vendor_id, vendor_address__is_deleted=False)
-        queryset = Material.objects.filter(material_uom__is_deleted=False, material_tax__is_deleted=False)
+        material_id = self.kwargs['pk']
+        queryset = Material.objects.filter(Q(id=material_id),((Q(material_uom__is_deleted=False)| Q(material_tax__is_deleted=False))) )
 
+        print(queryset.query)
         serializer = MaterialReadSerializer(queryset,many=True)
-        #print(queryset.query)
-        return Response(serializer.data[0])
+        if(len(serializer.data)>0):
+            return Response(serializer.data[0])
+        else:
+            return Response([])
 
 
 
@@ -133,4 +135,13 @@ class ProjectSpecificMaterialList(ListAPIView):
         return Material.objects.filter(companyprojectdetail__project=project_id,material_type=mtype_id)
 
 
+class MaterialTypeSpecificMaterialList(ListAPIView):
+    queryset = Material.objects.filter(status=True,is_deleted=False)
+    serializer_class = MaterialNameSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    lookup_field = ('material_type')
 
+    def get_queryset(self):
+        material_type = self.kwargs['material_type']
+        return Material.objects.filter(material_type=material_type)

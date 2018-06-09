@@ -13,7 +13,8 @@ from authentication.pagination import ErpLimitOffestpagination, ErpPageNumberPag
 from company_project.serializers import (
     CompanyProjectSerializer,
     CompanyProjectDetailsSerializer,
-    CompanyProjectUpdateStatusSerializer
+    CompanyProjectUpdateStatusSerializer,
+    CompanyProjectReadSerializer
 
 )
 from django.contrib.auth.models import User
@@ -28,7 +29,7 @@ from rest_framework import filters
 class CompanyProjectViewSet(viewsets.ModelViewSet):
     queryset = CompanyProject.objects.filter(is_deleted=False).order_by('-id')
     serializer_class =CompanyProjectSerializer
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
@@ -50,6 +51,18 @@ class CompanyProjectViewSet(viewsets.ModelViewSet):
 
         except Exception as e:
             raise
+
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     serializer = CompanyProjectReadSerializer(queryset, many=True)
+    #     return Response(serializer.data)
+    # def retrieve(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     serializer = CompanyProjectReadSerializer(queryset, many=True)
+    #     return Response(serializer.data)
+
+
+
 
 class SpecificCompanyProject(ListAPIView):
 

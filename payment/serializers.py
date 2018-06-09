@@ -11,6 +11,7 @@ from company.serializers import CompanyListSerializer
 from vendor.serializers import VendorAddressSerializer,VendorNameSerializer
 from authentication.serializers import UserReadSerializer
 from banks.serializers import BankSerializer
+from company_project.serializers import CompanyProjectReadSerializer
 
 
 
@@ -82,11 +83,14 @@ class PaymentReadSerializer(ModelSerializer):
     created_by = UserReadSerializer()
     bank=BankSerializer()
 
+
     class Meta:
         model = Payment
         fields = ['id','company','project','pur_inv','vendor','vendor_address','purchase_inv_no','purchase_inv_date','po_order','po_order_no','bank','payment_mode',
                   'payment_refrence','total_amount','special_note','is_approve','is_paid','status','created_at',
                   'created_by','is_deleted','payment_no']
+
+
 
 
 class PaymentUpdateStatusSerializer(ModelSerializer):

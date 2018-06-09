@@ -19,7 +19,8 @@ from purchase_requisition.serializers import (
     RequisitionSerializer,
     RequisitionReadSerializer,
     RequisitionDetailReadSerializer,
-    RequisitionUpdateStatusSerializer
+    RequisitionUpdateStatusSerializer,
+    RequisitionReadSerializerForPreviuosPurchase
 
 
 )
@@ -163,7 +164,14 @@ class RequisitioSearchView(ListAPIView):
 
 
 
+class RequisitioByprojectView(ListAPIView):
+    serializer_class = RequisitionReadSerializerForPreviuosPurchase
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self):
+        project=self.kwargs['project']
+        return Requisition.objects.filter(project=project).order_by('-id')
 
 
 

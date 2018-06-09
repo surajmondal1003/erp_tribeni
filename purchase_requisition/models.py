@@ -44,9 +44,16 @@ class RequisitionDetail(models.Model):
 
 
     def material_rate(self):
-        rate=CompanyProjectDetail.objects.values_list('rate',flat=True).filter(material=self.material)
+        rate=CompanyProjectDetail.objects.values_list('rate',flat=True).filter(material=self.material,project=self.requisition.project)
         value=rate.values('rate')
         return value
+
+    def project_material_quantity(self):
+        project_quantity = CompanyProjectDetail.objects.values_list('quantity',flat=True).filter(material=self.material,project=self.requisition.project)
+        quantity = project_quantity.values('quantity')
+        return quantity
+
+
 
 
 
