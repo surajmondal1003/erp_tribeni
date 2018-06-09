@@ -64,8 +64,6 @@ class MaterialReadSerializer(ModelSerializer):
         serializer = MaterialTaxSerializer(instance=qs,many=True)
         return serializer.data
 
-
-
     class Meta:
         model = Material
         fields = ['id','material_fullname','material_type','material_code','description','is_taxable','is_sales','status','created_at',
@@ -315,4 +313,4 @@ class MaterialNameSerializer(ModelSerializer):
 
     class Meta:
         model = Material
-        fields = ['id','material_type_id','material_type','material_fullname','material_code','material_tax']
+        fields = ['id','material_type_id','material_type','material_fullname','material_code','material_tax','margin']

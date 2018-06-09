@@ -28,6 +28,15 @@ class Requisition(models.Model):
     def __str__(self):
         return str(self.created_at)
 
+    def project_name(self):
+        return self.project.project_name
+
+    def project_id(self):
+        return self.project.id
+
+    def requisition_number(self):
+        return self.requisition_no
+
 
 
 class RequisitionDetail(models.Model):
@@ -52,6 +61,7 @@ class RequisitionDetail(models.Model):
         project_quantity = CompanyProjectDetail.objects.values_list('quantity',flat=True).filter(material=self.material,project=self.requisition.project)
         quantity = project_quantity.values('quantity')
         return quantity
+
 
 
 

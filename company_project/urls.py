@@ -12,6 +12,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('company_project/<company>/',views.SpecificCompanyProject.as_view()),
     path('company_project_dropdown/<company>/',views.SpecificCompanyProjectDropdown.as_view()),
+    path('all_company_project_dropdown/',views.AllCompanyProjectDropdown.as_view()),
 
 
 ]

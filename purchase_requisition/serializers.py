@@ -10,7 +10,7 @@ from material_master.serializers import MaterialNameSerializer,MaterialReadSeria
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer
 from uom.serializers import UOMSerializer
 from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
-from company_project.serializers import CompanyProjectSerializer
+from company_project.serializers import CompanyProjectSerializer,CompanyProjectReadSerializer
 from company_project.models import CompanyProjectDetail
 
 
@@ -112,7 +112,7 @@ class RequisitionReadSerializer(ModelSerializer):
     requisition_detail=RequisitionDetailReadSerializer(many=True)
     company=CompanyListSerializer()
     created_by=UserReadSerializer()
-    project=CompanyProjectSerializer()
+    project=CompanyProjectReadSerializer()
 
     class Meta:
         model = Requisition
@@ -162,3 +162,10 @@ class RequisitionReadSerializerForPreviuosPurchase(ModelSerializer):
         model = Requisition
         fields = ['id','company','special_note','is_approve','is_finalised','status','created_at','created_by',
                   'requisition_detail','requisition_no','project']
+
+
+class RequisitionProjectNameSerializer(ModelSerializer):
+
+    class Meta:
+        model = Requisition
+        fields = ['id','requisition_number','project_id','project_name']

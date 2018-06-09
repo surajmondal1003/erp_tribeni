@@ -5,7 +5,7 @@ from purchase_order.models import PurchaseOrder
 from company.models import Company
 from vendor.models import Vendor,VendorAddress
 from django.contrib.auth.models import User
-from material_master.models import Material
+from material_master.models import Material,Material_UOM
 from company_project.models import CompanyProject,CompanyProjectDetail
 from uom.models import UOM
 
@@ -21,7 +21,6 @@ class GRN(models.Model):
     grn_no = models.CharField(max_length=255)#newly added
     po_order=models.ForeignKey(PurchaseOrder,on_delete=models.SET_NULL,blank=True,null=True)
     company=models.ForeignKey(Company,on_delete=models.SET_NULL,blank=True,null=True)
-    project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True)
     vendor=models.ForeignKey(Vendor,on_delete=models.SET_NULL,blank=True,null=True)
     vendor_address=models.ForeignKey(VendorAddress,on_delete=models.SET_NULL,blank=True,null=True)
     waybill_no=models.CharField(max_length=150,blank=True,null=True)#newly added blank=True,null=True
@@ -37,24 +36,37 @@ class GRN(models.Model):
     is_deleted = models.BooleanField(default=False)
 
     def purchase_order_no(self):
-        grn= PurchaseOrder.objects.values_list('purchase_order_no',flat=True).filter(id=self.po_order.id)
-        return grn.values_list('purchase_order_no')
+        return self.po_order.purchase_order_no
 
     def __str__(self):
         return str(self.created_at)
+
+    def project_name(self):
+        return self.po_order.project.project_name
+
+    def project_id(self):
+        return self.po_order.project.id
+
+
+
 
 
 
 class GRNDetail(models.Model):
     grn=models.ForeignKey(GRN,on_delete=models.CASCADE,related_name='grn_detail')
     material = models.ForeignKey(Material, on_delete=models.SET_NULL, blank=True, null=True)
-    uom = models.ForeignKey(UOM, on_delete=models.SET_NULL, blank=True, null=True)
     order_quantity = models.DecimalField(max_digits=20, decimal_places=2)
     receive_quantity = models.DecimalField(max_digits=20, decimal_places=2)
 
 
     def __str__(self):
         return str(self.grn.created_at)
+
+    def material_uom(self):
+        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material)
+        return uom.values_list('base_uom')
+
+
 
 class ReversGRN(models.Model):
     STATUS_CHOICES = (

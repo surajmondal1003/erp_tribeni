@@ -22,7 +22,7 @@ from vendor.serializers import VendorNameSerializer
 from company.serializers import CompanyListSerializer
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer,CompanyProjectUpdateStatusSerializer
 from authentication.serializers import UserReadSerializer
-
+from purchase_requisition.serializers import RequisitionProjectNameSerializer
 
 
 
@@ -32,7 +32,7 @@ class GRNDetailSerializer(ModelSerializer):
 
     class Meta:
         model = GRNDetail
-        fields = ['id','material','uom','order_quantity','receive_quantity']
+        fields = ['id','material','order_quantity','receive_quantity']
 
 
 class GRNSerializer(ModelSerializer):
@@ -44,7 +44,7 @@ class GRNSerializer(ModelSerializer):
 
     class Meta:
         model = GRN
-        fields = ['id','grn_no','po_order','company','project','vendor','vendor_address','waybill_no','vehicle_no',
+        fields = ['id','po_order','company','vendor','vendor_address','waybill_no','vehicle_no',
                   'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
                   'created_by','grn_detail','is_deleted']
 
@@ -84,13 +84,19 @@ class GRNSerializer(ModelSerializer):
 class GRNDetailReadSerializer(ModelSerializer):
     material = MaterialNameSerializer(read_only=True)
     company_project = CompanyProjectSerializer(read_only=True)
-    uom = UOMSerializer(read_only=True)
 
     class Meta:
         model = GRNDetail
-        fields = ['id','material','uom','order_quantity','receive_quantity','company_project']
+        fields = ['id','material','material_uom','order_quantity','receive_quantity','company_project','material_uom']
 
 
+
+class GRNProjectReadSerializer(ModelSerializer):
+
+
+    class Meta:
+        model = GRN
+        fields = ['project_id','project_name']
 
 
 class GRNReadSerializer(ModelSerializer):
@@ -101,11 +107,12 @@ class GRNReadSerializer(ModelSerializer):
     vendor_address=VendorAddressSerializer()
     grn_detail = GRNDetailReadSerializer(many=True)
     created_by = UserReadSerializer()
+    #project = GRNProjectReadSerializer()
 
 
     class Meta:
         model = GRN
-        fields = ['id','grn_no','po_order','company','project','vendor','vendor_address','waybill_no','vehicle_no',
+        fields = ['id','grn_no','po_order','company','vendor','vendor_address','waybill_no','vehicle_no',
                   'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
                   'created_by','grn_detail','is_deleted','purchase_order_no']
 
@@ -179,5 +186,6 @@ class ReversGRNReadSerializer(ModelSerializer):
         model = ReversGRN
         fields = ['id', 'grn','revers_gen_no','reverse_quantity','created_at','created_by','reverse_reason','status','is_approve',
                   'is_finalised']
+
 
 

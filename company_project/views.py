@@ -97,3 +97,13 @@ class ProjectUpdateStatus(RetrieveUpdateAPIView):
     serializer_class = CompanyProjectUpdateStatusSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+
+class AllCompanyProjectDropdown(ListAPIView):
+
+    serializer_class = CompanyProjectSerializer
+    permission_classes = [IsAuthenticated,IsAdminUser]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        return CompanyProject.objects.filter(status=True,is_deleted=False).order_by('-id')
