@@ -41,8 +41,12 @@ class GRN(models.Model):
     def __str__(self):
         return str(self.created_at)
 
-    def project_name(self):
-        return self.po_order.requisition.project.project_name
+    def project(self):
+        name=self.po_order.requisition.project.project_name
+        id=self.po_order.requisition.project.id
+        details = {'id': id, 'name': name}
+        return details
+
 
 
 class GRNDetail(models.Model):

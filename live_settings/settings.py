@@ -119,7 +119,7 @@ WSGI_APPLICATION = 'erp_tribeni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shyamfut_tribeni_erp',
+        'NAME': 'shyamfut_tribeni_erp_dev',
         'USER': 'shyamfut_erp',
         'PASSWORD': '3,KMkLNcn@-X',
         'HOST': 'localhost',
