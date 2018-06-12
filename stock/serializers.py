@@ -119,7 +119,7 @@ class StockIssueReadSerializer(ModelSerializer):
 
     class Meta:
         model = StockIssue
-        fields = ['id','stockview','quantity', 'note','created_at','created_by','status']
+        fields = ['id','stockview','quantity', 'material','project_details','note','created_at','created_by','status']
 
 
 

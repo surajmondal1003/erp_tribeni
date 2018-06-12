@@ -70,7 +70,7 @@ class CompanyProjectDetailsReadSerializer(ModelSerializer):
 
     class Meta:
         model = CompanyProjectDetail
-        fields = ['id','project','materialtype','material','quantity','boq_ref','rate']
+        fields = ['id','project','materialtype','material','quantity','boq_ref','rate','avail_qty']
 
 
 class CompanyProjectReadSerializer(ModelSerializer):

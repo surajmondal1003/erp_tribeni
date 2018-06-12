@@ -23,7 +23,8 @@ from company_project.models import CompanyProjectDetail,CompanyProject
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import filters
 from rest_framework import filters
-
+from datetime import datetime,timedelta,time,date
+from django.utils import timezone
 
 # Create your views here.
 class CompanyProjectViewSet(viewsets.ModelViewSet):
@@ -107,3 +108,40 @@ class AllCompanyProjectDropdown(ListAPIView):
 
     def get_queryset(self):
         return CompanyProject.objects.filter(status=True,is_deleted=False).order_by('-id')
+
+
+
+class ProjectSearchView(ListAPIView):
+
+    serializer_class = CompanyProjectReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = ErpPageNumberPagination
+
+    def get_queryset(self):
+        queryset = CompanyProject.objects.all()
+        company = self.request.query_params.get('company', None)
+        from_date=self.request.query_params.get('from_date', None)
+        to_date=self.request.query_params.get('to_date', None)
+        project = self.request.query_params.get('project', None)
+
+        if company is not None:
+            queryset = queryset.filter(company_id=company)
+
+        if project is not None:
+            queryset = queryset.filter(id=project)
+
+
+        if from_date and to_date is not None:
+
+            created_from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
+            created_from_date = datetime.combine(created_from_date, time.min)
+            created_from_date = datetime.isoformat(created_from_date)
+
+            created_to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
+            created_to_date = datetime.combine(created_to_date, time.max)
+            created_to_date = datetime.isoformat(created_to_date)
+
+            queryset = queryset.filter(created_at__gte=created_from_date,created_at__lte=created_to_date)
+
+        return queryset

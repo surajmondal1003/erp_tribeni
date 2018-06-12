@@ -23,6 +23,7 @@ from company.serializers import CompanyListSerializer
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer,CompanyProjectUpdateStatusSerializer
 from authentication.serializers import UserReadSerializer
 from purchase_requisition.serializers import RequisitionProjectNameSerializer
+from purchase_order.models import PurchaseOrderDetail
 
 
 
@@ -53,14 +54,15 @@ class GRNSerializer(ModelSerializer):
     def create(self, validated_data):
 
         grn_detail_data = validated_data.pop('grn_detail')
-
         grn = GRN.objects.create(**validated_data)
-
         grn_no = str(datetime.date.today()) + '/GRN-00' + str(grn.id)
-
         for grn_detail in grn_detail_data:
-            GRNDetail.objects.create(grn=grn, **grn_detail)
-
+            detail=GRNDetail.objects.create(grn=grn, **grn_detail)
+            order = PurchaseOrderDetail.objects.filter(po_order=detail.grn.po_order,
+                                                           material=detail.material)
+            for i in order:
+                i.avail_qty = i.avail_qty - detail.receive_quantity
+                i.save()
 
         grn.grn_no = grn_no
         grn.save()

@@ -45,7 +45,6 @@ class PurchaseOrder(models.Model):
 
 class PurchaseOrderDetail(models.Model):
     po_order=models.ForeignKey(PurchaseOrder,on_delete=models.CASCADE,related_name='purchase_order_detail')
-    material_type = models.ForeignKey(MaterialType, on_delete=models.SET_NULL, blank=True, null=True)
     material=models.ForeignKey(Material,on_delete=models.SET_NULL,blank=True,null=True)
     uom=models.ForeignKey(UOM,on_delete=models.SET_NULL,blank=True,null=True)
     requisition_quantity=models.DecimalField(max_digits=20,decimal_places=2)
@@ -60,6 +59,7 @@ class PurchaseOrderDetail(models.Model):
     gst_amount=models.DecimalField(max_digits=10,decimal_places=2)
     sub_total=models.DecimalField(max_digits=10,decimal_places=2)
     delivery_date=models.DateTimeField()
+    avail_qty = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
 
     def __str__(self):
         return str(self.po_order.created_at)
