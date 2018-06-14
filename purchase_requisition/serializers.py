@@ -164,7 +164,7 @@ class RequisitionReadSerializerForPreviuosPurchase(ModelSerializer):
     requisition_detail=RequisitionDetailReadForPreviuosPurchaseSerializer(many=True)
     company=CompanyListSerializer()
     created_by=UserReadSerializer()
-    project=CompanyProjectSerializer()
+    project=CompanyProjectReadSerializer()
 
     class Meta:
         model = Requisition

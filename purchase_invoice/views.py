@@ -39,13 +39,20 @@ class PurchaseInvoiceReadView(ListAPIView):
 
     def get_queryset(self):
         try:
+            queryset = PurchaseInvoice.objects.all().order_by('-id')
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
+            project = self.request.query_params.get('project', None)
+            company = self.request.query_params.get('company', None)
 
             if order_by and order_by.lower() == 'desc' and field_name:
                 queryset = PurchaseInvoice.objects.all().order_by('-' + field_name)
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = PurchaseInvoice.objects.all().order_by(field_name)
+            elif project is not None:
+                queryset = queryset.filter(grn__po_order__requisition__project=project)
+            elif company is not None:
+                queryset = queryset.filter(company=company)
             else:
                 queryset = PurchaseInvoice.objects.all().order_by('-id')
             return queryset

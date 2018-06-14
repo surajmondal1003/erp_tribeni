@@ -13,11 +13,7 @@ class CompanyProjectDetailsSerializer(ModelSerializer):
     materialtype = MaterialTypeSerializer(read_only=True)
     class Meta:
         model = CompanyProjectDetail
-        fields = ['id','materialtype','material','quantity','boq_ref','rate']
-
-
-
-
+        fields = ['id','materialtype','material','quantity','boq_ref','rate','avail_qty']
 
 
 
@@ -32,11 +28,10 @@ class CompanyProjectSerializer(ModelSerializer):
         model = CompanyProject
         fields = ['id','company','project_name','description','project_address','project_state','project_city','project_pincode',
                   'project_contact_no','contact_person','project_gstin','engineer_name','engineer_contact_no','status','created_at',
-                  'created_by','is_deleted','is_approve','is_finalised','project_details']
+                  'created_by','is_deleted','is_approve','is_finalised','project_details','lattitude','longitude']
 
 
     def create(self, validated_data):
-
             project_details_data = validated_data.pop('project_details')
             project = CompanyProject.objects.create(**validated_data)
 
@@ -84,4 +79,4 @@ class CompanyProjectReadSerializer(ModelSerializer):
         model = CompanyProject
         fields = ['id','company','project_name','description','project_address','project_state','project_city','project_pincode',
                   'project_contact_no','contact_person','project_gstin','engineer_name','engineer_contact_no','status','created_at',
-                  'created_by','is_deleted','is_approve','is_finalised','project_details']
+                  'created_by','is_deleted','is_approve','is_finalised','project_details','lattitude','longitude']

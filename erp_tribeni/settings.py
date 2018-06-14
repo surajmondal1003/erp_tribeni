@@ -65,10 +65,10 @@ INSTALLED_APPS = [
     'stock',
     'departments',
     'designation',
-    # 'employee',
     'contractor',
     'uom',
-    'company_project'
+    'company_project',
+    'attendance'
 ]
 
 MIDDLEWARE = [
