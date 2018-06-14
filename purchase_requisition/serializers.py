@@ -56,8 +56,16 @@ class RequisitionSerializer(ModelSerializer):
 
 
             for requisition_data in requisitions_data:
-                detail=RequisitionDetail.objects.create(requisition=requisition,**requisition_data)
-                req_qty=detail.quantity
+                detail = RequisitionDetail.objects.create(requisition=requisition,**requisition_data)
+                detail.avail_qty=detail.quantity
+                detail.save()
+
+                project = CompanyProjectDetail.objects.filter(project=detail.requisition.project,
+                                                               material=detail.material)
+                for i in project:
+                    i.avail_qty = i.avail_qty - detail.quantity
+                    i.save()
+                #req_qty=detail.quantity
                 #material=CompanyProjectDetail.objects.values_list('id','material','avail_qty').filter(material=detail.material,compan)
                 #print(material.query)
                 # project_qty=0
@@ -104,7 +112,7 @@ class RequisitionDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = RequisitionDetail
-        fields = ['id','material','quantity','uom','status','material_rate']
+        fields = ['id','material','quantity','avail_qty','uom','status','material_rate']
 
 
 class RequisitionReadSerializer(ModelSerializer):
@@ -156,7 +164,7 @@ class RequisitionReadSerializerForPreviuosPurchase(ModelSerializer):
     requisition_detail=RequisitionDetailReadForPreviuosPurchaseSerializer(many=True)
     company=CompanyListSerializer()
     created_by=UserReadSerializer()
-    project=CompanyProjectSerializer()
+    project=CompanyProjectReadSerializer()
 
     class Meta:
         model = Requisition

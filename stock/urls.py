@@ -5,7 +5,7 @@ from django.urls import path
 
 
 urlpatterns = [
-    path('all_stock/',views.StockReadView.as_view()),
+    path('all_stock/',views.StockViewReadView.as_view()),
     path('all_stock/<pk>/', views.StocktReadDetailView.as_view()),
     path('all_stock_issue/',views.StockIssueReadView.as_view()),
     path('stock/', views.StockMatser.as_view()),

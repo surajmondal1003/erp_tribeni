@@ -34,8 +34,7 @@ class PaymentReadView(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('company__company_name','vendor__vendor_fullname','payment_no')
-
+    search_fields = ('payment_no',)
 
     def get_queryset(self):
         try:
@@ -103,19 +102,21 @@ class PaymentSearchView(ListAPIView):
         company = self.request.query_params.get('company', None)
         from_date=self.request.query_params.get('from_date', None)
         to_date=self.request.query_params.get('to_date', None)
-        vendor = self.request.query_params.get('vendor', None)
         paid = self.request.query_params.get('paid', None)
+        vendor = self.request.query_params.get('vendor', None)
+        project = self.request.query_params.get('project', None)
 
 
 
         if company is not None:
             queryset = queryset.filter(company_id=company)
 
-        if vendor is not None:
-            queryset = queryset.filter(vendor_id=vendor)
-
         if paid is not None:
             queryset = queryset.filter(is_paid=paid)
+        if project is not None:
+            queryset = queryset.filter(pur_inv__grn__po_order__requisition__project=project)
+        if vendor is not None:
+            queryset = queryset.filter(pur_inv__grn__po_order__vendor=vendor)
 
         if from_date and to_date is not None:
 

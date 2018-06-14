@@ -43,13 +43,20 @@ class GRNReadViewList(ListAPIView):
 
     def get_queryset(self):
         try:
+            queryset = GRN.objects.filter(is_deleted=False).order_by('-id')
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
+            project = self.request.query_params.get('project', None)
+            company = self.request.query_params.get('company', None)
 
             if order_by and order_by.lower() == 'desc' and field_name:
                 queryset = GRN.objects.filter(is_deleted=False).order_by('-' + field_name)
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = GRN.objects.filter(is_deleted=False).order_by(field_name)
+            elif project is not None:
+                queryset = queryset.filter(po_order__requisition__project=project)
+            elif company is not None:
+                queryset = queryset.filter(company=company)
             else:
                 queryset = GRN.objects.filter(is_deleted=False).order_by('-id')
             return queryset
@@ -120,6 +127,7 @@ class GRNSearchView(ListAPIView):
         to_date=self.request.query_params.get('to_date', None)
         created_at=self.request.query_params.get('created_at', None)
         vendor = self.request.query_params.get('vendor', None)
+        project = self.request.query_params.get('project', None)
 
         if company is not None:
             queryset = queryset.filter(company_id=company)
@@ -132,6 +140,9 @@ class GRNSearchView(ListAPIView):
 
         if vendor is not None:
             queryset = queryset.filter(vendor_id=vendor)
+
+        if project is not None:
+            queryset = queryset.filter(po_order__requisition__project=project)
 
         if created_at is not None:
 

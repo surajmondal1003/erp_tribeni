@@ -27,9 +27,9 @@ class PaymentSerializer(ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ['id','company','project','pur_inv','vendor','vendor_address','purchase_inv_no','purchase_inv_date','po_order','po_order_no','bank','payment_mode',
+        fields = ['id','pur_inv','bank','payment_mode',
                   'payment_refrence','total_amount','special_note','is_approve','is_paid','status','created_at',
-                  'created_by','is_deleted','payment_no']
+                  'created_by','is_deleted']
 
     def create(self, validated_data):
 
@@ -47,16 +47,6 @@ class PaymentSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
 
-            instance.company = validated_data.get('company', instance.company)
-            instance.project = validated_data.get('project', instance.project)
-            instance.payment_no = validated_data.get('payment_no', instance.payment_no)
-            instance.pur_inv = validated_data.get('pur_inv', instance.pur_inv)
-            instance.vendor = validated_data.get('vendor', instance.vendor)
-            instance.vendor_address = validated_data.get('vendor_address', instance.vendor_address)
-            instance.purchase_inv_no = validated_data.get('purchase_inv_no', instance.purchase_inv_no)
-            instance.purchase_inv_date = validated_data.get('purchase_inv_date', instance.purchase_inv_date)
-            instance.po_order = validated_data.get('po_order', instance.po_order)
-            instance.po_order_no = validated_data.get('po_order_no', instance.po_order_no)
             instance.bank = validated_data.get('bank', instance.bank)
             instance.payment_mode = validated_data.get('payment_mode', instance.payment_mode)
             instance.payment_refrence = validated_data.get('payment_refrence', instance.payment_refrence)
@@ -73,22 +63,16 @@ class PaymentSerializer(ModelSerializer):
             return instance
 
 
-
-
 class PaymentReadSerializer(ModelSerializer):
 
-    company = CompanyListSerializer()
-    vendor = VendorNameSerializer(read_only=True)
-    vendor_address = VendorAddressSerializer(read_only=True)
     created_by = UserReadSerializer()
     bank=BankSerializer()
 
-
     class Meta:
         model = Payment
-        fields = ['id','company','project','pur_inv','vendor','vendor_address','purchase_inv_no','purchase_inv_date','po_order','po_order_no','bank','payment_mode',
+        fields = ['id','pur_inv','bank','payment_mode',
                   'payment_refrence','total_amount','special_note','is_approve','is_paid','status','created_at',
-                  'created_by','is_deleted','payment_no']
+                  'created_by','is_deleted','payment_no','company','pur_inv_no','po_order_no','vendor_name','project_name']
 
 
 

@@ -63,7 +63,6 @@ urlpatterns = [
     path('', include('stock.urls')),
     path('', include('departments.urls')),
     path('', include('designation.urls')),
-    # path('', include('employee.urls')),
     path('', include('contractor.urls')),
     path('', include('uom.urls')),
     path('', include('company_project.urls')),

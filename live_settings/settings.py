@@ -29,13 +29,13 @@ ALLOWED_HOSTS = ['132.148.130.125']
 
 
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'surajmondal1003@gmail.com'
-EMAIL_HOST_PASSWORD = '8013134344'
+EMAIL_HOST_USER = 'admin@gmail.com'
+EMAIL_HOST_PASSWORD = '123456'
 
 # Application definition
 
@@ -68,7 +68,6 @@ INSTALLED_APPS = [
     'stock',
     'departments',
     'designation',
-    # 'employee',
     'contractor',
     'uom',
     'company_project'
@@ -119,7 +118,7 @@ WSGI_APPLICATION = 'erp_tribeni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shyamfut_tribeni_erp',
+        'NAME': 'shyamfut_tribeni_erp_dev',
         'USER': 'shyamfut_erp',
         'PASSWORD': '3,KMkLNcn@-X',
         'HOST': 'localhost',

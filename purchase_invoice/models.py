@@ -18,7 +18,6 @@ class PurchaseInvoice(models.Model):
 
     purchase_inv_no = models.CharField(max_length=255)
     grn=models.ForeignKey(GRN,on_delete=models.SET_NULL,blank=True,null=True)
-    po_order=models.ForeignKey(PurchaseOrder,on_delete=models.SET_NULL,blank=True,null=True)
     total_gst=models.DecimalField(max_digits=20,decimal_places=2)
     total_amount=models.DecimalField(max_digits=20,decimal_places=2)
     vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, blank=True, null=True)
@@ -35,12 +34,13 @@ class PurchaseInvoice(models.Model):
 
 
     def grn_number(self):
-        grn=GRN.objects.values_list('grn_no',flat=True).filter(id=self.grn.id)
-        return grn.values_list('grn_no')
+        return self.grn.grn_no
 
     def po_order_no(self):
-        order=PurchaseOrder.objects.values_list('purchase_order_no',flat=True).filter(id=self.po_order.id)
-        return order.values_list('purchase_order_no')
+        return self.grn.po_order.purchase_order_no
+
+    def project_name(self):
+        return self.grn.po_order.requisition.project.project_name
 
     # def grn_material(self):
     #     return GRNDetail.objects.filter(grn=self.grn)

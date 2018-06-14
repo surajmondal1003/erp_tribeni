@@ -6,6 +6,8 @@ from grn.models import GRN,GRNDetail
 from material_master.models import Material,MaterialType
 from company_project.models import CompanyProject,CompanyProjectDetail
 from uom.models import UOM
+from material_master.models import Material_UOM
+from contractor.models import Contractor
 # Create your models here.
 
 class Stock(models.Model):
@@ -16,25 +18,138 @@ class Stock(models.Model):
     material = models.ForeignKey(Material, on_delete=models.SET_NULL, blank=True, null=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    uom = models.ForeignKey(UOM, on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.created_at)
 
+    def grn_number(self):
+        return self.grn.grn_no
+
+    def material_uom(self):
+        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material,material_for='1')
+        #print(uom.values_list('base_uom')[0])
+        materialuom=0
+        for i in uom:
+            if i[0]:
+                materialuom=i[0]
+        uom_name=UOM.objects.filter(id=materialuom)
+        name=''
+        for j in uom_name:
+            name=j.name
+        return name
+
+
+class StockView(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=True, null=True)
+    company_project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True)
+    material_type = models.ForeignKey(MaterialType, on_delete=models.SET_NULL, blank=True, null=True)
+    material = models.ForeignKey(Material, on_delete=models.SET_NULL, blank=True, null=True)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    avl_qty = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.company_project.project_name)
+
+    def material_uom(self):
+        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material,material_for='1')
+        #print(uom.values_list('base_uom')[0])
+        materialuom=0
+        for i in uom:
+            if i[0]:
+                materialuom=i[0]
+        uom_name=UOM.objects.filter(id=materialuom)
+        name=''
+        for j in uom_name:
+            name=j.name
+        return name
+    def company_details(self):
+        id=self.company.id
+        name=self.company.company_name
+        details = {'id': id, 'name': name}
+        return details
+
+    def company_project_details(self):
+        id=self.company_project.id
+        project_name = self.company_project.project_name
+        details = {'id': id, 'project_name': project_name}
+        return details
+
+    def material_details(self):
+        id = self.material.id
+        material_fullname = self.material.material_fullname
+        material_code = self.material.material_code
+        details = {'id': id, 'material_fullname': material_fullname,'material_code':material_code}
+        return details
 
 class StockIssue(models.Model):
-    stock = models.ForeignKey(Stock, on_delete=models.SET_NULL, blank=True, null=True)
+    ISSUETYPE_CHOICES = (
+        ('2', 'OnProject'),
+        ('1', 'OutProject'),
+        ('0', 'None'),
+
+    )
+    TRANSFER_TYPE=(
+        ('3', 'Freeable'),
+        ('2', 'Chargeable'),
+        ('1', 'Returnable'),
+        ('0', 'None'),
+    )
+
+    stockview = models.ForeignKey(StockView, on_delete=models.SET_NULL, blank=True, null=True)
+    from_project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True,related_name='from_project')
+    to_project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True,related_name='to_project')
+    issue_type = models.CharField(max_length=1, choices=ISSUETYPE_CHOICES, default='0')
+    transfer_type = models.CharField(max_length=1, choices=TRANSFER_TYPE, default='0')
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     note = models.TextField()
+    contractor = models.ForeignKey(Contractor, on_delete=models.SET_NULL,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     status = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.created_at)
+
+    def material(self):
+        material_name=self.stockview.material.material_fullname
+        material_code=self.stockview.material.material_code
+        material_type_name=self.stockview.material.material_type.material_type
+        material_id=self.stockview.material.id
+        material_uom=Material_UOM.objects.filter(material_id=material_id)
+        uom=''
+        for i in material_uom:
+            uom=i.base_uom.name
+
+        type=self.transfer_type
+        if type == '0':
+            transfer_type = 'None'
+        elif type == '1':
+            transfer_type = 'Returnable'
+        elif type == '2':
+            transfer_type = 'Chargeable'
+        elif type == '3':
+            transfer_type = 'Freeable'
+        else:
+            transfer_type = ''
+
+        details = {'material_name': material_name,'material_code':material_code,
+                   'material_type_name':material_type_name,'material_uom':uom,'transfer_type':transfer_type}
+        return details
+
+    def project_details(self):
+        from_project_name = self.from_project.project_name
+        to_project_name = self.to_project.project_name
+        details = {'from_project_name': from_project_name,
+                   'to_project_name': to_project_name}
+        return details
+
 
 class StockTransfer(models.Model):
         stock = models.ForeignKey(Stock, on_delete=models.SET_NULL, blank=True, null=True)
@@ -43,6 +158,7 @@ class StockTransfer(models.Model):
         created_at = models.DateTimeField(auto_now_add=True)
         created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
         status = models.BooleanField(default=True)
+        is_deleted = models.BooleanField(default=False)
 
         def __str__(self):
             return str(self.created_at)

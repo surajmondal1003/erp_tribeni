@@ -16,15 +16,7 @@ class Payment(models.Model):
     )
 
     payment_no = models.CharField(max_length=255)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=True, null=True)
-    project = models.ForeignKey(CompanyProject, on_delete=models.SET_NULL, blank=True, null=True)
     pur_inv=models.ForeignKey(PurchaseInvoice,on_delete=models.SET_NULL,blank=True,null=True)
-    vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, blank=True, null=True)
-    vendor_address = models.ForeignKey(VendorAddress, on_delete=models.SET_NULL, blank=True, null=True)
-    purchase_inv_no = models.CharField(max_length=255)
-    purchase_inv_date = models.DateTimeField(blank=True,null=True)
-    po_order=models.ForeignKey(PurchaseOrder,on_delete=models.SET_NULL,blank=True,null=True)
-    po_order_no=models.CharField(max_length=255,blank=True,null=True)
     bank=models.ForeignKey(Bank,on_delete=models.SET_NULL,blank=True,null=True)
     payment_mode = models.CharField(max_length=255,blank=True,null=True)
     payment_refrence = models.CharField(max_length=255,blank=True,null=True)
@@ -41,4 +33,25 @@ class Payment(models.Model):
         return str(self.created_at)
 
 
+    def company(self):
+       companyname= self.pur_inv.grn.po_order.requisition.company.company_name
+       company_id= self.pur_inv.grn.po_order.requisition.company.id
+       details={'company_name':companyname,'id':company_id}
+       return details
 
+
+    def pur_inv_no(self):
+         inv_no=self.pur_inv.purchase_inv_no
+         id=self.pur_inv.id
+         date=self.pur_inv.created_at
+         details = {'inv_no': inv_no, 'id': id,'date':date}
+         return details
+
+    def po_order_no(self):
+       return self.pur_inv.grn.po_order.purchase_order_no
+
+    def vendor_name(self):
+        return self.pur_inv.grn.po_order.vendor.vendor_fullname
+
+    def project_name(self):
+        return self.pur_inv.grn.po_order.requisition.project.project_name

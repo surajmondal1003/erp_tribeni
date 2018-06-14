@@ -10,7 +10,7 @@ from authentication.serializers import UserReadSerializer
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer
 from rest_framework.relations import StringRelatedField
 from vendor.serializers import VendorAddressSerializer,VendorNameSerializer
-from purchase_requisition.models import Requisition
+from purchase_requisition.models import Requisition,RequisitionDetail
 from purchase_requisition.serializers import RequisitionProjectNameSerializer
 
 
@@ -71,7 +71,15 @@ class PurchaseOrderSerializer(ModelSerializer):
         purchase_order_no = str(datetime.date.today()) + '/O-00' + str(po_order.id)
 
         for purchase_order_detail in purchase_order_detail_data:
-            PurchaseOrderDetail.objects.create(po_order=po_order, **purchase_order_detail)
+            detail=PurchaseOrderDetail.objects.create(po_order=po_order, **purchase_order_detail)
+            detail.avail_qty=detail.order_quantity
+            detail.save()
+
+            requisition=RequisitionDetail.objects.filter(requisition=detail.po_order.requisition,material=detail.material)
+            for i in requisition:
+                i.avail_qty=i.avail_qty - detail.order_quantity
+                i.save()
+
         for purchase_order_freight in purchase_order_freight_data:
             PurchaseOrderFreight.objects.create(po_order=po_order, **purchase_order_freight)
         for purchase_order_terms in purchase_order_terms_data:
@@ -109,7 +117,7 @@ class PurchaseDetailReadSerializer(ModelSerializer):
         model = PurchaseOrderDetail
         fields = ['id','material','uom','requisition_quantity',
                   'order_quantity', 'rate', 'material_value', 'discount_percent', 'discount_value', 'igst',
-                  'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date']
+                  'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date','avail_qty']
 
 
 
@@ -145,7 +153,7 @@ class PurchaseDetailReadForGRNSerializer(ModelSerializer):
         model = PurchaseOrderDetail
         fields = ['id','material','uom','requisition_quantity',
                   'order_quantity', 'rate', 'material_value', 'discount_percent', 'discount_value', 'igst',
-                  'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date']
+                  'cgst','sgst', 'gst_amount', 'sub_total', 'delivery_date','avail_qty']
 
 
 

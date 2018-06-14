@@ -46,6 +46,7 @@ class RequisitionDetail(models.Model):
     quantity=models.DecimalField(max_digits=10,decimal_places=2)
     uom=models.ForeignKey(UOM,on_delete=models.SET_NULL,blank=True,null=True)
     status = models.BooleanField(default=True)
+    avail_qty = models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
 
 
     def __str__(self):

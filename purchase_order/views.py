@@ -39,19 +39,30 @@ class PurchaseOrderReadView(ListAPIView):
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('requisition__requisition_no', 'purchase_order_no', 'company__company_name',
+<<<<<<< HEAD
                      'grand_total','project__project_name')
     # requisition_no
     # requisition_no
+=======
+                     'grand_total')
+>>>>>>> bdf55d5557b86115b909db9fdfefd01b737f76e1
 
     def get_queryset(self):
         try:
+            queryset = PurchaseOrder.objects.all().order_by('-id')
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
+            project = self.request.query_params.get('project', None)
+            company = self.request.query_params.get('company', None)
 
             if order_by and order_by.lower() == 'desc' and field_name:
                 queryset = PurchaseOrder.objects.all().order_by('-' + field_name)
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = PurchaseOrder.objects.all().order_by(field_name)
+            elif project is not None:
+                queryset = queryset.filter(requisition__project=project)
+            elif company is not None:
+                queryset = queryset.filter(company=company)
             else:
                 queryset = PurchaseOrder.objects.all().order_by('-id')
             return queryset
@@ -126,6 +137,7 @@ class PurchaseOrderSearchView(ListAPIView):
         to_date=self.request.query_params.get('to_date', None)
         created_at=self.request.query_params.get('created_at', None)
         vendor=self.request.query_params.get('vendor', None)
+        project=self.request.query_params.get('project', None)
 
         if company is not None:
             queryset = queryset.filter(company_id=company)
@@ -138,6 +150,9 @@ class PurchaseOrderSearchView(ListAPIView):
 
         if vendor is not None:
             queryset = queryset.filter(vendor_id=vendor)
+
+        if project is not None:
+            queryset = queryset.filter(requisition__project=project)
 
         if created_at is not None:
 

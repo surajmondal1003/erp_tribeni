@@ -3,6 +3,7 @@ from states.models import State
 from company.models import Company
 from django.contrib.auth.models import User
 from material_master.models import MaterialType,Material
+# from purchase_requisition.models import RequisitionDetail
 
 # Create your models here.
 
@@ -24,6 +25,8 @@ class CompanyProject(models.Model):
     project_gstin=models.CharField(max_length=50,blank=True,null=True)
     engineer_name = models.CharField(max_length=100, blank=True, null=True)
     engineer_contact_no = models.BigIntegerField(blank=True, null=True)
+    lattitude=models.CharField(max_length=200)
+    longitude=models.CharField(max_length=200)
     status = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
@@ -34,6 +37,21 @@ class CompanyProject(models.Model):
     def __str__(self):
         return str(self.project_name)
 
+    # def requistion_details(self):
+    #     requisition = RequisitionDetail.objects.filter(requisition__project=self)
+    #     response_data = {}
+    #     for i in requisition:
+    #         data = []
+    #         data['requisition_no'] = i.requisition.requisition_no
+    #         data['material_type'] = i.material_type.material_type
+    #         data['material_name'] = i.material.material_fullname
+    #         data['quantity'] = i.quantity
+    #         data['avail_qty'] = i.avail_qty
+    #         data['uom'] = i.uom.name
+    #
+    #         response_data.update({data})
+    #
+    #     return response_data
 
 
 class CompanyProjectDetail(models.Model):
@@ -47,6 +65,9 @@ class CompanyProjectDetail(models.Model):
 
     def __str__(self):
         return str(self.project)
+
+
+
 
 
 

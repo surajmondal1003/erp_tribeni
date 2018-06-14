@@ -67,7 +67,7 @@ class MaterialReadSerializer(ModelSerializer):
     class Meta:
         model = Material
         fields = ['id','material_fullname','material_type','material_code','description','is_taxable','is_sales','status','created_at',
-                  'is_deleted','material_uom', 'material_tax','created_by']
+                  'is_deleted','material_uom', 'material_tax','created_by','margin']
 
 
 

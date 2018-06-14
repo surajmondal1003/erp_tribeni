@@ -41,14 +41,11 @@ class GRN(models.Model):
     def __str__(self):
         return str(self.created_at)
 
-    def project_name(self):
-        return self.po_order.project.project_name
-
-    def project_id(self):
-        return self.po_order.project.id
-
-
-
+    def project(self):
+        name=self.po_order.requisition.project.project_name
+        id=self.po_order.requisition.project.id
+        details = {'id': id, 'name': name}
+        return details
 
 
 
@@ -63,9 +60,17 @@ class GRNDetail(models.Model):
         return str(self.grn.created_at)
 
     def material_uom(self):
-        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material)
-        return uom.values_list('base_uom')
-
+        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material,material_for='1')
+        #print(uom.values_list('base_uom')[0])
+        materialuom=0
+        for i in uom:
+            if i[0]:
+                materialuom=i[0]
+        uom_name=UOM.objects.filter(id=materialuom)
+        name=''
+        for j in uom_name:
+            name=j.name
+        return name
 
 
 class ReversGRN(models.Model):
