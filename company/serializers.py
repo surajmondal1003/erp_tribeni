@@ -6,9 +6,6 @@ from rest_framework.validators import UniqueValidator
 
 
 
-
-
-
 class ChildrenSerializer(serializers.Serializer):
     def to_representation(self, value):
         serializer = self.parent.parent.__class__(value, context=self.context)

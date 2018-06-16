@@ -12,6 +12,8 @@ from uom.serializers import UOMSerializer
 from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectReadSerializer
 from company_project.models import CompanyProjectDetail
+from appapprovepermission.models import AppApprove,EmpApprove
+from django.db.models import Q
 
 
 class RequisitionMapSerializer(ModelSerializer):
@@ -132,14 +134,31 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
 
     class Meta:
         model = Requisition
-        fields = ['id','status','is_approve','is_finalised']
-
+        fields = ['id','status','is_approve','is_finalised','approval_level']
 
     def update(self, instance, validated_data):
-            instance.is_approve = validated_data.get('is_approve', instance.is_approve)
-            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
-            instance.status = validated_data.get('status', instance.status)
-            instance.save()
+
+            user = self.context['request'].user
+            emp=EmpApprove.objects.filter(Q(content__model='requisition'),Q(emp_level=validated_data.get('approval_level')),(Q(primary_emp=user)|Q(secondary_emp=user)))
+            if emp:
+
+                app_level=AppApprove.objects.filter(content__model='requisition')
+
+                instance.is_approve = validated_data.get('is_approve', instance.is_approve)
+                instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+                instance.status = validated_data.get('status', instance.status)
+                instance.approval_level=validated_data.get('approval_level',instance.approval_level)
+
+                approval_level=0
+                for i in app_level:
+                    approval_level=i.approval_level
+
+                if instance.approval_level == approval_level:
+                    instance.is_approve='1'
+                instance.save()
+
+            else:
+                raise serializers.ValidationError({'message':'You dont have authority to Approve'})
 
             return instance
 

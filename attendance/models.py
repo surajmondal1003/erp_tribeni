@@ -11,5 +11,12 @@ class Attendance(models.Model):
     date=models.DateTimeField()
     is_deleted=models.BooleanField(default=False)
 
+
+    def employee_details(self):
+        id=self.employee.id
+        name=self.employee.first_name + ' ' + self.employee.last_name
+        details={'id':id,'name':name}
+        return details
+
     def __str__(self):
-        return str(self.employee)+''+str(self.date)
+        return str(self.employee)+' '+str(self.date)

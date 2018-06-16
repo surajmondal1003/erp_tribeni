@@ -68,7 +68,8 @@ INSTALLED_APPS = [
     'contractor',
     'uom',
     'company_project',
-    'attendance'
+    'attendance',
+    'appapprovepermission'
 ]
 
 MIDDLEWARE = [

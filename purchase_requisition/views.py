@@ -24,9 +24,9 @@ from purchase_requisition.serializers import (
 
 
 )
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from purchase_requisition.models import Requisition,RequisitionDetail
-
 from django_filters.rest_framework import DjangoFilterBackend
 from pytz import timezone, utc
 from datetime import datetime,timedelta,time,date

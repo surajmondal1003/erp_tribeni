@@ -111,3 +111,8 @@ class EmployeeMatserUpdate(RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+class EmployeeDropdwon(ListAPIView):
+    queryset = EmployeeProfile.objects.filter(is_deleted=False)
+    serializer_class = EmployeeReadSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]

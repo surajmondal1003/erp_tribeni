@@ -9,6 +9,7 @@ from uom.models import UOM
 # Create your models here.
 
 class Requisition(models.Model):
+
     STATUS_CHOICES = (
         ('2', 'False'),
         ('1', 'True'),
@@ -23,7 +24,9 @@ class Requisition(models.Model):
     is_finalised = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
     status=models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    approval_level=models.IntegerField(default='0')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True,related_name='requisition_by')
+
 
     def __str__(self):
         return str(self.created_at)

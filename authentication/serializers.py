@@ -37,7 +37,7 @@ class EmployeeProfileSerializer(ModelSerializer):
 
     class Meta:
         model = EmployeeProfile
-        fields = ['id','user','company','departments','designation','first_name','last_name','email','contact','dob','alt_contact',
+        fields = ['id','user','company','departments','designation','contact','dob','alt_contact',
                   'pan','blood_group','adhaar_no','emp_present_address','emp_present_state','emp_present_city','emp_present_pin',
                   'emp_permanent_address','emp_permanent_state','emp_permanent_city','emp_permanent_pin','created_at','status'
                   ,'is_deleted','created_by']
@@ -45,23 +45,26 @@ class EmployeeProfileSerializer(ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required=True,validators=[UniqueValidator(queryset=User.objects.all())])
-    username = serializers.CharField(validators=[UniqueValidator(queryset=User.objects.all())])
     employee_profile_details=EmployeeProfileSerializer(many=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'password','groups','employee_profile_details']
+        fields = ['id','first_name', 'last_name', 'email','groups','employee_profile_details']
 
     def create(self, validated_data):
         employee_profile_details = validated_data.pop('employee_profile_details')
 
+        validated_data['username']=validated_data['email']
+        validated_data['password']='123456'
+
         user = User.objects.create_user(validated_data['username'], validated_data['email'],
              validated_data['password'])
+
         user.set_password(validated_data['password'])
         user.first_name=validated_data['first_name']
         user.last_name=validated_data['last_name']
         user.save()
-        #print(validated_data['groups'])
+
         group_id=0
         if validated_data['groups']:
             for i in validated_data['groups']:
@@ -69,12 +72,9 @@ class UserSerializer(serializers.ModelSerializer):
             group = Group.objects.get(id=group_id)
             group.user_set.add(user)
 
-        # emp_serializer = EmployeeSerializer(data=user_employee_details)
-        # if emp_serializer.is_valid():
-        #     emp_serializer.save()
-
         for profile_details in employee_profile_details:
-            EmployeeProfile.objects.create(user=user,**profile_details)
+            EmployeeProfile.objects.create(user=user,first_name=user.first_name,last_name=user.last_name,
+                                           email=user.email,**profile_details)
 
         return user
 

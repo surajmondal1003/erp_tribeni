@@ -70,7 +70,8 @@ INSTALLED_APPS = [
     'designation',
     'contractor',
     'uom',
-    'company_project'
+    'company_project',
+    'attendance'
 ]
 
 

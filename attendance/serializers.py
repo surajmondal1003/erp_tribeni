@@ -11,3 +11,10 @@ class AttendanceSerializer(ModelSerializer):
     class Meta:
         model = Attendance
         fields = ['id','employee','in_time','out_time','date','is_deleted']
+
+
+class AttendanceReadSerializer(ModelSerializer):
+
+    class Meta:
+        model = Attendance
+        fields = ['id','employee_details','in_time','out_time','date','is_deleted']
