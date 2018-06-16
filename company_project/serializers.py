@@ -5,7 +5,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
 from material_master.serializers import MaterialNameSerializer,MaterialTypeSerializer
 from states.serializers import StateNameSerializer
-import urllib.request,urllib.parse,urllib.error
+import urllib.request, urllib.parse, urllib.error
 import json
 
 
@@ -75,6 +75,8 @@ class CompanyProjectSerializer(ModelSerializer):
                     project.save()
 
             return project
+    def project_address(self):
+        lat, lng = GetAddress.GetLatLng(address="")
 
 
 class CompanyProjectUpdateStatusSerializer(ModelSerializer):
@@ -114,3 +116,35 @@ class CompanyProjectReadSerializer(ModelSerializer):
         fields = ['id','company','project_name','description','project_address','project_state','project_city','project_pincode',
                   'project_contact_no','contact_person','project_gstin','engineer_name','engineer_contact_no','status','created_at',
                   'created_by','is_deleted','is_approve','is_finalised','project_details','lattitude','longitude']
+
+
+class GetAddress():
+
+
+    def GetLatLng(self, address:str):
+        serviceurl = 'https://maps.googleapis.com/maps/api/geocode/json?'
+        while True:
+            # address = input('Enter Location : ')
+            if (len(address) < 1):
+                break
+            url = serviceurl + urllib.parse.urlencode({'address': address})
+            print('Retrieving..')
+            uh = urllib.request.urlopen(url)
+            data = uh.read().decode()
+
+            try:
+                js = json.loads(data)
+            except:
+                js = None
+
+            if not js or js['status'] != 'OK' or 'status' not in js:
+                print('====Failure====')
+                print(data)
+                continue
+            lat = js["results"][0]["geometry"]["location"]["lat"]
+            lng = js["results"][0]["geometry"]["location"]["lng"]
+            location = js["results"][0]["formatted_address"]
+            print('lattitude : ', lat)
+            print('longitude :', lng)
+            print('Location :', location)
+            return lat,lng
