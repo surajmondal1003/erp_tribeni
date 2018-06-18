@@ -101,13 +101,13 @@ class EmployeeReadView(ListAPIView):
 
 class EmployeeReadDetailView(RetrieveAPIView):
     queryset = EmployeeProfile.objects.filter(is_deleted=False)
-    serializer_class = EmployeeReadSerializer
+    serializer_class = EmployeeProfileSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
 class EmployeeMatserUpdate(RetrieveUpdateDestroyAPIView):
-    queryset = EmployeeProfile.objects.all()
-    serializer_class = EmployeeProfileSerializer
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
