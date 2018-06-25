@@ -25,7 +25,7 @@ SECRET_KEY = 'gt9ta^4=z1jjn*d(rb%neqgv)+_xd$f-!j3rx02lbq4#7_dw5v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['132.148.130.125']
 
 
 
@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'authentication',
     'states',
     'company',
+    # 'company_branch',
+    # 'purchaseorggroup',
+    # 'salesorg_group',
     'material_master',
     'purchase_requisition',
     'gstrates',
@@ -59,9 +62,9 @@ INSTALLED_APPS = [
     'banks',
     # 'account_transaction',
     'purchase_order',
-    'payment',
     'grn',
     'purchase_invoice',
+    'payment',
     'stock',
     'departments',
     'designation',
@@ -72,6 +75,7 @@ INSTALLED_APPS = [
     'appapprovepermission'
 ]
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -80,7 +84,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+
+#cors-headers
+CORS_ORIGIN_ALLOW_ALL=True
 
 ROOT_URLCONF = 'erp_tribeni.urls'
 
@@ -110,13 +120,12 @@ WSGI_APPLICATION = 'erp_tribeni.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tribeni_erp',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'shyamfut_tribeni_erp_dev',
+        'USER': 'shyamfut_erp',
+        'PASSWORD': '3,KMkLNcn@-X',
         'HOST': 'localhost',
         'PORT': '',
     }
-
 }
 
 
@@ -124,7 +133,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-
+  
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },

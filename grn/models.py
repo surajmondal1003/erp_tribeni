@@ -34,6 +34,7 @@ class GRN(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
+    approval_level = models.IntegerField(default='0')
 
     def purchase_order_no(self):
         return self.po_order.purchase_order_no
@@ -81,19 +82,34 @@ class ReversGRN(models.Model):
     )
     grn = models.ForeignKey(GRN, on_delete=models.SET_NULL, blank=True, null=True,related_name='reverse_grn')
     revers_gen_no = models.CharField(max_length=255)
-    reverse_quantity = models.DecimalField(max_digits=20, decimal_places=2)
+    #reverse_quantity = models.DecimalField(max_digits=20, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    reverse_reason = models.CharField(max_length=150)
     status = models.BooleanField(default=True)
     is_approve = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
     is_finalised = models.CharField(max_length=1, choices=STATUS_CHOICES, default='0')
+    approval_level = models.IntegerField(default='0')
 
 
     def __str__(self):
         return str(self.created_at)
 
 
+
+class ReverseGRNDetail(models.Model):
+    reverse_grn=models.ForeignKey(ReversGRN,on_delete=models.CASCADE,related_name='reverse_grn_detail')
+    material = models.ForeignKey(Material, on_delete=models.SET_NULL, blank=True, null=True)
+    reverse_grn_quantity = models.DecimalField(max_digits=20, decimal_places=2)
+    reverse_reason = models.CharField(max_length=150,blank=True,null=True)
+
+    def __str__(self):
+        return str(self.reverse_grn)
+
+    def material_details(self):
+        id=self.material.id
+        name=self.material.name
+        details={'id':id,'name':name}
+        return details
 
 
 

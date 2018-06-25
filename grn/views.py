@@ -72,6 +72,14 @@ class GRNReadViewDropdown(ListAPIView):
     authentication_classes = [TokenAuthentication]
 
 
+class GRNDropdownForNonApproval(ListAPIView):
+    queryset = GRN.objects.filter(status=True, is_approve=0, is_finalised=0,is_deleted=False)
+    serializer_class = GRNReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+
 class GRNReadViewDetail(RetrieveAPIView):
     queryset = GRN.objects.all()
     serializer_class = GRNReadSerializer
@@ -113,7 +121,7 @@ class GRNUpdateStatus(RetrieveUpdateAPIView):
 class GRNSearchView(ListAPIView):
 
     serializer_class = GRNReadSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
 
@@ -221,3 +229,11 @@ class ReversGRNReadViewDetail(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+class PreviousReversGRNList(ListAPIView):
+    serializer_class = ReversGRNReadSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        grn = self.kwargs['grn']
+        return ReversGRN.objects.filter(grn=grn,status=True,is_deleted=False)

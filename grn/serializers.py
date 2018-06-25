@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework.validators import UniqueValidator
 import datetime
 
-from grn.models import GRN,GRNDetail,ReversGRN
+from grn.models import GRN,GRNDetail,ReversGRN,ReverseGRNDetail
 from django.contrib.auth.models import User
 from vendor.serializers import VendorAddressSerializer
 from uom.serializers import UOMSerializer
@@ -24,6 +24,9 @@ from company_project.serializers import CompanyProjectSerializer,CompanyProjectD
 from authentication.serializers import UserReadSerializer
 from purchase_requisition.serializers import RequisitionProjectNameSerializer
 from purchase_order.models import PurchaseOrderDetail
+from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
+from django.db.models import Q
+from django.core.mail import send_mail
 
 
 
@@ -67,6 +70,29 @@ class GRNSerializer(ModelSerializer):
         grn.grn_no = grn_no
         grn.save()
 
+        """***** Mail send *****"""
+        text_message = 'http://132.148.130.125:8000/grn_status/' + str(grn.id) + '/'
+
+        # admin_user = User.objects.values_list('email', flat=True).filter(is_superuser=True)
+        # for each_user in admin_user:
+        # print(each_user)
+
+        emp = EmpApproveDetail.objects.filter(emp_approve__content=35, emp_level=1)
+        print(emp.query)
+
+        mail_list = list()
+        for eachemp in emp:
+            mail_list.append(eachemp.primary_emp.email)
+            mail_list.append(eachemp.secondary_emp.email)
+        print(mail_list)
+
+        send_mail(
+            'Test Subject',
+            text_message,
+            'shyamdemo2018@gmail.com',
+            mail_list,
+            fail_silently=False,
+        )
 
         return grn
 
@@ -133,17 +159,84 @@ class GRNUpdateStatusSerializer(ModelSerializer):
 
     class Meta:
         model = GRN
-        fields = ['id','status','is_approve','is_finalised','is_deleted']
+        fields = ['id','status','is_approve','is_finalised','is_deleted','approval_level']
 
 
     def update(self, instance, validated_data):
-            instance.is_approve = validated_data.get('is_approve', instance.is_approve)
-            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
-            instance.status = validated_data.get('status', instance.status)
-            instance.is_deleted = validated_data.get('is_deleted', instance.is_deleted)
-            instance.save()
+
+            user = self.context['request'].user
+            emp=EmpApprove.objects.filter(Q(content=35),
+                                          Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
+                                          (Q(emp_approve_details__primary_emp=user)|Q(emp_approve_details__secondary_emp=user)))
+
+            if validated_data.get('is_approve') == '2':
+                emp = EmpApprove.objects.filter(Q(content=35),
+                                                (Q(emp_approve_details__primary_emp=user) | Q(
+                                                    emp_approve_details__secondary_emp=user)))
+
+                grn_detail = GRNDetail.objects.filter(grn=instance)
+
+                for i in grn_detail:
+                    po_detail = PurchaseOrderDetail.objects.filter(po_order=instance.po_order,
+                                                                  material=i.material)
+                    for po_data in po_detail:
+                        po_data.avail_qty += i.receive_quantity
+                        po_data.save()
+                        if po_data.po_order.is_finalised == '1':
+                            po_data.po_order.is_finalised = '0'
+                            po_data.save()
+
+            if emp:
+
+                app_level=AppApprove.objects.filter(content=35)
+
+                instance.is_approve = validated_data.get('is_approve', instance.is_approve)
+                instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+                instance.status = validated_data.get('status', instance.status)
+                instance.approval_level=validated_data.get('approval_level',instance.approval_level)
+
+                approval_level=0
+                for i in app_level:
+                    approval_level=i.approval_level
+
+                if instance.approval_level == approval_level:
+                    instance.is_approve='1'
+                instance.save()
+
+                text_message = 'http://132.148.130.125:8000/grn_status/' + str(instance.id) + '/'
+
+                emp = EmpApproveDetail.objects.filter(emp_approve__content=35, emp_level=validated_data.get('approval_level')+1)
+                print(emp.query)
+
+                mail_list = list()
+                for eachemp in emp:
+                    mail_list.append(eachemp.primary_emp.email)
+                    mail_list.append(eachemp.secondary_emp.email)
+                print(mail_list)
+
+
+                send_mail(
+                    'Test Subject',
+                    text_message,
+                    'shyamdemo2018@gmail.com',
+                    mail_list,
+                    fail_silently=False,
+                )
+
+
+            else:
+                raise serializers.ValidationError({'message':'You dont have authority to Approve'})
 
             return instance
+
+
+
+
+class ReverseGRNDetailSerializer(ModelSerializer):
+
+    class Meta:
+        model = ReverseGRNDetail
+        fields = ['id','material','reverse_grn_quantity','reverse_reason']
 
 
 
@@ -152,16 +245,18 @@ class ReversGRNSerializer(ModelSerializer):
 
     created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
     status = serializers.BooleanField(default=True)
+    reverse_grn_detail=ReverseGRNDetailSerializer(many=True)
 
 
     class Meta:
         model = ReversGRN
-        fields = ['id','grn','reverse_quantity','created_at','created_by','reverse_reason','status','is_approve','is_finalised']
+        fields = ['id','grn','created_at','created_by','status','is_approve','is_finalised','reverse_grn_detail']
 
 
     def create(self, validated_data):
 
         grn_data = validated_data.pop('grn')
+        reverse_grn_detail = validated_data.pop('reverse_grn_detail')
 
         revers_grn = ReversGRN.objects.create(**validated_data)
 
@@ -169,7 +264,40 @@ class ReversGRNSerializer(ModelSerializer):
 
         revers_grn.revers_gen_no = revers_gen_no
         revers_grn.save()
-        return revers_gen_no
+
+        for reverse_grn_data in reverse_grn_detail:
+            reverse_detail=ReverseGRNDetail.objects.create(reverse_grn=revers_grn, **reverse_grn_data)
+
+            grn_detail = GRNDetail.objects.filter(grn=revers_grn.grn,material=reverse_detail.material)
+            for i in grn_detail:
+                i.receive_quantity = i.receive_quantity - reverse_detail.reverse_grn_quantity
+                i.save()
+
+        """***** Mail send *****"""
+        text_message = 'http://132.148.130.125:8000/reversegrn_status/' + str(revers_grn.id) + '/'
+
+        # admin_user = User.objects.values_list('email', flat=True).filter(is_superuser=True)
+        # for each_user in admin_user:
+        # print(each_user)
+
+        emp = EmpApproveDetail.objects.filter(emp_approve__content=37, emp_level=1)
+        print(emp.query)
+
+        mail_list = list()
+        for eachemp in emp:
+            mail_list.append(eachemp.primary_emp.email)
+            mail_list.append(eachemp.secondary_emp.email)
+        print(mail_list)
+
+        send_mail(
+            'Test Subject',
+            text_message,
+            'shyamdemo2018@gmail.com',
+            mail_list,
+            fail_silently=False,
+        )
+
+        return revers_grn
 
     def update(self, instance, validated_data):
 
@@ -181,13 +309,85 @@ class ReversGRNSerializer(ModelSerializer):
 
             return instance
 
+
+
+class ReverseGRNDetailReadSerializer(ModelSerializer):
+
+    class Meta:
+        model = ReverseGRNDetail
+        fields = ['id','material_details','reverse_grn_quantity','reverse_reason']
+
+
 class ReversGRNReadSerializer(ModelSerializer):
-    # grn = GRNReadSerializer(many=True)
+    reverse_grn_detail = ReverseGRNDetailReadSerializer(many=True)
     created_by = UserReadSerializer()
     class Meta:
         model = ReversGRN
-        fields = ['id', 'grn','revers_gen_no','reverse_quantity','created_at','created_by','reverse_reason','status','is_approve',
-                  'is_finalised']
+        fields = ['id', 'grn','revers_gen_no','created_at','created_by','status','is_approve',
+                  'is_finalised','reverse_grn_detail']
 
 
 
+
+
+class ReverseGRNUpdateStatusSerializer(ModelSerializer):
+
+    class Meta:
+        model = ReversGRN
+        fields = ['id','status','is_approve','is_finalised']
+
+
+    def update(self, instance, validated_data):
+
+            user = self.context['request'].user
+            emp=EmpApprove.objects.filter(Q(content=37),
+                                          Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
+                                          (Q(emp_approve_details__primary_emp=user)|Q(emp_approve_details__secondary_emp=user)))
+
+            if validated_data.get('is_approve') == '2':
+                emp = EmpApprove.objects.filter(Q(content=35),
+                                                (Q(emp_approve_details__primary_emp=user) | Q(
+                                                    emp_approve_details__secondary_emp=user)))
+
+            if emp:
+
+                app_level=AppApprove.objects.filter(content=37)
+
+                instance.is_approve = validated_data.get('is_approve', instance.is_approve)
+                instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+                instance.status = validated_data.get('status', instance.status)
+                instance.approval_level=validated_data.get('approval_level',instance.approval_level)
+
+                approval_level=0
+                for i in app_level:
+                    approval_level=i.approval_level
+
+                if instance.approval_level == approval_level:
+                    instance.is_approve='1'
+                instance.save()
+
+                text_message = 'http://132.148.130.125:8000/reversegrn_status/' + str(instance.id) + '/'
+
+                emp = EmpApproveDetail.objects.filter(emp_approve__content=37, emp_level=validated_data.get('approval_level')+1)
+                print(emp.query)
+
+                mail_list = list()
+                for eachemp in emp:
+                    mail_list.append(eachemp.primary_emp.email)
+                    mail_list.append(eachemp.secondary_emp.email)
+                print(mail_list)
+
+
+                send_mail(
+                    'Test Subject',
+                    text_message,
+                    'shyamdemo2018@gmail.com',
+                    mail_list,
+                    fail_silently=False,
+                )
+
+
+            else:
+                raise serializers.ValidationError({'message':'You dont have authority to Approve'})
+
+            return instance

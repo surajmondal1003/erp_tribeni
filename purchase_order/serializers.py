@@ -12,7 +12,9 @@ from rest_framework.relations import StringRelatedField
 from vendor.serializers import VendorAddressSerializer,VendorNameSerializer
 from purchase_requisition.models import Requisition,RequisitionDetail
 from purchase_requisition.serializers import RequisitionProjectNameSerializer
-
+from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
+from django.db.models import Q
+from django.core.mail import send_mail
 
 
 
@@ -88,6 +90,27 @@ class PurchaseOrderSerializer(ModelSerializer):
         po_order.purchase_order_no = purchase_order_no
         po_order.save()
 
+        """***** Mail send *****"""
+        text_message = 'http://132.148.130.125:8000/purchase_order_status/' + str(po_order.id) + '/'
+
+
+        emp = EmpApproveDetail.objects.filter(emp_approve__content=35, emp_level=1)
+        print(emp.query)
+
+        mail_list = list()
+        for eachemp in emp:
+            mail_list.append(eachemp.primary_emp.email)
+            mail_list.append(eachemp.secondary_emp.email)
+        print(mail_list)
+
+        send_mail(
+            'Test Subject',
+            text_message,
+            'shyamdemo2018@gmail.com',
+            mail_list,
+            fail_silently=False,
+        )
+
 
         return po_order
 
@@ -143,7 +166,7 @@ class PurchaseOrderReadSerializer(ModelSerializer):
         model = PurchaseOrder
         fields = ['id','quotation_no','quotation_date','company','vendor','vendor_address',
                   'grand_total','grand_total_words','is_approve','is_finalised','status','created_at','created_by',
-                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition']
+                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition','approval_level']
 
 
 class PurchaseDetailReadForGRNSerializer(ModelSerializer):
@@ -169,13 +192,75 @@ class PurchaseOrderUpdateStatusSerializer(ModelSerializer):
 
     class Meta:
         model = PurchaseOrder
-        fields = ['id','status','is_approve','is_finalised']
+        fields = ['id','status','is_approve','is_finalised','approval_level']
 
 
     def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        emp = EmpApprove.objects.filter(Q(content=34),
+                                        Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
+                                        (Q(emp_approve_details__primary_emp=user) | Q(
+                                            emp_approve_details__secondary_emp=user)))
+
+        if validated_data.get('is_approve') == '2':
+            emp = EmpApprove.objects.filter(Q(content=34),
+                                            (Q(emp_approve_details__primary_emp=user) | Q(
+                                                emp_approve_details__secondary_emp=user)))
+
+            order_detail = PurchaseOrderDetail.objects.filter(po_order=instance)
+
+            for i in order_detail:
+
+
+                requisition = RequisitionDetail.objects.filter(requisition=instance.requisition,
+                                                              material=i.material)
+                for requisition_data in requisition:
+                    requisition_data.avail_qty += i.order_quantity
+                    requisition_data.save()
+                    if requisition_data.requisition.is_finalised == '1':
+                        requisition_data.requisition.is_finalised = '0'
+                        requisition_data.save()
+
+        if emp:
+
+            app_level = AppApprove.objects.filter(content=34)
+
             instance.is_approve = validated_data.get('is_approve', instance.is_approve)
             instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
             instance.status = validated_data.get('status', instance.status)
+            instance.approval_level = validated_data.get('approval_level', instance.approval_level)
+
+            approval_level = 0
+            for i in app_level:
+                approval_level = i.approval_level
+
+            if instance.approval_level == approval_level:
+                instance.is_approve = '1'
             instance.save()
 
-            return instance
+            text_message = 'http://132.148.130.125:8000/purchase_order_status/' + str(instance.id) + '/'
+
+            emp = EmpApproveDetail.objects.filter(emp_approve__content=34,
+                                                  emp_level=validated_data.get('approval_level') + 1)
+            print(emp.query)
+
+            mail_list = list()
+            for eachemp in emp:
+                mail_list.append(eachemp.primary_emp.email)
+                mail_list.append(eachemp.secondary_emp.email)
+            print(mail_list)
+
+            send_mail(
+                'Test Subject',
+                text_message,
+                'shyamdemo2018@gmail.com',
+                mail_list,
+                fail_silently=False,
+            )
+
+
+        else:
+            raise serializers.ValidationError({'message': 'You dont have authority to Approve'})
+
+        return instance

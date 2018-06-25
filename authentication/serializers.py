@@ -119,11 +119,6 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-fields = ['id','user','company','departments','designation','contact','dob','alt_contact',
-                  'pan','blood_group','adhaar_no','emp_present_address','emp_present_state','emp_present_city','emp_present_pin',
-                  'emp_permanent_address','emp_permanent_state','emp_permanent_city','emp_permanent_pin','created_at','status'
-                  ,'is_deleted','created_by']
-
 
 
 

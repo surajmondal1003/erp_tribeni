@@ -23,6 +23,8 @@ from authentication.serializers import (
 from django_filters.rest_framework import filters
 from rest_framework import filters
 from django.contrib.auth.models import Permission
+from appapprovepermission.models import EmpApproveDetail
+from django.db.models import Q
 
 # Create your views here.dat
 
@@ -41,14 +43,24 @@ class CustomObtainAuthToken(ObtainAuthToken):
                 user_group=item.name
             perm_tuple = [{'id':x.id, 'name':x.name} for x in Permission.objects.filter(user=user)]
 
+            approve=EmpApproveDetail.objects.filter(Q(primary_emp=user)|Q(secondary_emp=user))
+            approve_details=[]
+            for i in approve:
+
+                approve_details.append({'content':i.emp_approve.content.model,'level':i.emp_level})
+
+
             return Response({
                 'token': token.key,
                 'user_id': user.pk,
                 'username':user.username,
                 'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
                 'user_type':user_group,
                 'group_permissions':user.get_group_permissions(),
                 'user_permissions':perm_tuple,
+                'approve_details':approve_details,
 
             })
         else:

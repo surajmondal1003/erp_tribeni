@@ -84,7 +84,7 @@ class SpecificCompanyProject(ListAPIView):
 class SpecificCompanyProjectDropdown(ListAPIView):
 
     serializer_class = CompanyProjectSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
 
@@ -103,7 +103,7 @@ class ProjectUpdateStatus(RetrieveUpdateAPIView):
 class AllCompanyProjectDropdown(ListAPIView):
 
     serializer_class = CompanyProjectSerializer
-    permission_classes = [IsAuthenticated,IsAdminUser]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):

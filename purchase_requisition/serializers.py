@@ -12,8 +12,9 @@ from uom.serializers import UOMSerializer
 from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectReadSerializer
 from company_project.models import CompanyProjectDetail
-from appapprovepermission.models import AppApprove,EmpApprove
+from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
 from django.db.models import Q
+from django.core.mail import send_mail
 
 
 class RequisitionMapSerializer(ModelSerializer):
@@ -67,26 +68,34 @@ class RequisitionSerializer(ModelSerializer):
                 for i in project:
                     i.avail_qty = i.avail_qty - detail.quantity
                     i.save()
-                #req_qty=detail.quantity
-                #material=CompanyProjectDetail.objects.values_list('id','material','avail_qty').filter(material=detail.material,compan)
-                #print(material.query)
-                # project_qty=0
-                # for i in material.values_list('avail_qty'):
-                #     project_qty=i
-                #
-                # avail_qty=project_qty[0]-req_qty
-                # #print(project_qty[0])
-                # print(avail_qty)
 
-                # for obj in material:
-                #     obj.avail_qty = avail_qty
-                #     obj.save()
 
             requisition.requisition_no=requisition_no
             requisition.save()
+            """***** Mail send *****"""
+            text_message ='http://132.148.130.125:8000/purchase_requistion_status/'+str(requisition.id)+'/'
+
+            #admin_user = User.objects.values_list('email', flat=True).filter(is_superuser=True)
+            # for each_user in admin_user:
+                # print(each_user)
+
+            emp = EmpApproveDetail.objects.filter(emp_approve__content=29,emp_level=1)
+            print(emp.query)
+
+            mail_list=list()
+            for eachemp in emp:
+                mail_list.append(eachemp.primary_emp.email)
+                mail_list.append(eachemp.secondary_emp.email)
+            print(mail_list)
 
 
-
+            send_mail(
+                'Test Subject',
+                text_message,
+                'shyamdemo2018@gmail.com',
+                mail_list,
+                fail_silently=False,
+            )
 
             return requisition
 
@@ -100,7 +109,6 @@ class RequisitionSerializer(ModelSerializer):
             instance.save()
 
             return instance
-
 
 
 
@@ -127,7 +135,7 @@ class RequisitionReadSerializer(ModelSerializer):
     class Meta:
         model = Requisition
         fields = ['id','company','special_note','is_approve','is_finalised','status','created_at','created_by',
-                  'requisition_detail','requisition_no','project']
+                  'requisition_detail','requisition_no','project','approval_level']
 
 
 class RequisitionUpdateStatusSerializer(ModelSerializer):
@@ -139,7 +147,32 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
     def update(self, instance, validated_data):
 
             user = self.context['request'].user
-            emp=EmpApprove.objects.filter(Q(content__model='requisition'),Q(emp_level=validated_data.get('approval_level')),(Q(primary_emp=user)|Q(secondary_emp=user)))
+            print(validated_data.get('approval_level'))
+            emp=EmpApprove.objects.filter(Q(content=29),
+                                          Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
+                                          (Q(emp_approve_details__primary_emp=user)|Q(emp_approve_details__secondary_emp=user)))
+
+            if validated_data.get('is_approve') == '2':
+                emp = EmpApprove.objects.filter(Q(content=29),
+                                                (Q(emp_approve_details__primary_emp=user) | Q(
+                                                    emp_approve_details__secondary_emp=user)))
+
+                requisition_detail=RequisitionDetail.objects.filter(requisition=instance)
+
+                for i in requisition_detail:
+                    project = CompanyProjectDetail.objects.filter(project=instance.project,
+                                                                  material=i.material)
+                    for project_data in project:
+                        project_data.avail_qty += i.quantity
+                        project_data.save()
+                        if project_data.project.is_finalised == '1' :
+                            project_data.project.is_finalised='0'
+                            project_data.save()
+
+
+
+
+
             if emp:
 
                 app_level=AppApprove.objects.filter(content__model='requisition')
@@ -155,7 +188,30 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
 
                 if instance.approval_level == approval_level:
                     instance.is_approve='1'
+
+
                 instance.save()
+
+                text_message = 'http://132.148.130.125:8000/purchase_requistion_status/' + str(instance.id) + '/'
+
+                emp = EmpApproveDetail.objects.filter(emp_approve__content=29, emp_level=validated_data.get('approval_level')+1)
+                print(emp.query)
+
+                mail_list = list()
+                for eachemp in emp:
+                    mail_list.append(eachemp.primary_emp.email)
+                    mail_list.append(eachemp.secondary_emp.email)
+                print(mail_list)
+
+
+                send_mail(
+                    'Test Subject',
+                    text_message,
+                    'shyamdemo2018@gmail.com',
+                    mail_list,
+                    fail_silently=False,
+                )
+
 
             else:
                 raise serializers.ValidationError({'message':'You dont have authority to Approve'})
