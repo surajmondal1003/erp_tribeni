@@ -43,6 +43,11 @@ class PurchaseOrder(models.Model):
         # return requisition.values('requisition_no')
         return  self.requisition.requisition_no
 
+    def project(self):
+        name=self.requisition.project.project_name
+        id=self.requisition.project.id
+        details={'id':id,'name':name}
+        return details
 
 
 class PurchaseOrderDetail(models.Model):

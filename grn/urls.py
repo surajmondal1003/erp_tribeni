@@ -19,7 +19,8 @@ urlpatterns = [
     path('reversegrn_status/<pk>/', views.ReversGRNUpdateStatus.as_view()),
     path('all_reversegrn/', views.ReversGRNReadViewList.as_view()),
     path('all_reversegrn/<pk>/', views.ReversGRNReadViewDetail.as_view()),
-    path('previous_grn/<grn>/', views.PreviousReversGRNList.as_view()),
+    path('previous_reverse_grn/<grn>/', views.PreviousReversGRNList.as_view()),
+
 
 
 ]

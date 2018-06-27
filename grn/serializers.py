@@ -27,6 +27,14 @@ from purchase_order.models import PurchaseOrderDetail
 from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
 from django.db.models import Q
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context,Template
+from mail.models import MailTemplate
+from erp_tribeni.settings import SITE_URL
+from rest_framework.authtoken.models import Token
+import base64
+from django.contrib.auth.models import User
 
 
 
@@ -71,7 +79,6 @@ class GRNSerializer(ModelSerializer):
         grn.save()
 
         """***** Mail send *****"""
-        text_message = 'http://132.148.130.125:8000/grn_status/' + str(grn.id) + '/'
 
         # admin_user = User.objects.values_list('email', flat=True).filter(is_superuser=True)
         # for each_user in admin_user:
@@ -84,15 +91,40 @@ class GRNSerializer(ModelSerializer):
         for eachemp in emp:
             mail_list.append(eachemp.primary_emp.email)
             mail_list.append(eachemp.secondary_emp.email)
-        print(mail_list)
 
-        send_mail(
-            'Test Subject',
-            text_message,
-            'shyamdemo2018@gmail.com',
-            mail_list,
-            fail_silently=False,
-        )
+        mail_content = MailTemplate.objects.get(code='grn_created')
+
+        for each_mail in mail_list:
+            username = User.objects.get(email=each_mail)
+            token_data = Token.objects.filter(user=username)
+            encode_token = ''
+
+            for i in token_data:
+                print(i.key)
+                encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+            from_email = 'shyamdemo2018@gmail.com'
+            text_link = SITE_URL + 'grn/details/' + str(grn.id) + '/?token=' + encode_token
+            subject = mail_content.subject
+
+            d = Context({'link': text_link, 'name': username.first_name})
+            text_content = Template(mail_content.text_content)
+            html_content = Template(mail_content.html_content)
+
+            text_content = text_content.render(d)
+            html_content = html_content.render(d)
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+        # send_mail(
+        #     'Test Subject',
+        #     text_message,
+        #     'shyamdemo2018@gmail.com',
+        #     mail_list,
+        #     fail_silently=False,
+        # )
 
         return grn
 
@@ -206,22 +238,47 @@ class GRNUpdateStatusSerializer(ModelSerializer):
                 text_message = 'http://132.148.130.125:8000/grn_status/' + str(instance.id) + '/'
 
                 emp = EmpApproveDetail.objects.filter(emp_approve__content=35, emp_level=validated_data.get('approval_level')+1)
-                print(emp.query)
+
 
                 mail_list = list()
                 for eachemp in emp:
                     mail_list.append(eachemp.primary_emp.email)
                     mail_list.append(eachemp.secondary_emp.email)
-                print(mail_list)
+
+                mail_content = MailTemplate.objects.get(code='grn_updated')
+
+                for each_mail in mail_list:
+                    username = User.objects.get(email=each_mail)
+                    token_data = Token.objects.filter(user=username)
+                    encode_token = ''
+
+                    for i in token_data:
+                        print(i.key)
+                        encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+                    from_email = 'shyamdemo2018@gmail.com'
+                    text_link = SITE_URL + 'grn/details/' + str(instance.id) + '/?token=' + encode_token
+                    subject = mail_content.subject
+
+                    d = Context({'link': text_link, 'name': username.first_name})
+                    text_content = Template(mail_content.text_content)
+                    html_content = Template(mail_content.html_content)
+
+                    text_content = text_content.render(d)
+                    html_content = html_content.render(d)
+
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
 
 
-                send_mail(
-                    'Test Subject',
-                    text_message,
-                    'shyamdemo2018@gmail.com',
-                    mail_list,
-                    fail_silently=False,
-                )
+                # send_mail(
+                #     'Test Subject',
+                #     text_message,
+                #     'shyamdemo2018@gmail.com',
+                #     mail_list,
+                #     fail_silently=False,
+                # )
 
 
             else:
@@ -255,7 +312,6 @@ class ReversGRNSerializer(ModelSerializer):
 
     def create(self, validated_data):
 
-        grn_data = validated_data.pop('grn')
         reverse_grn_detail = validated_data.pop('reverse_grn_detail')
 
         revers_grn = ReversGRN.objects.create(**validated_data)
@@ -287,15 +343,40 @@ class ReversGRNSerializer(ModelSerializer):
         for eachemp in emp:
             mail_list.append(eachemp.primary_emp.email)
             mail_list.append(eachemp.secondary_emp.email)
-        print(mail_list)
 
-        send_mail(
-            'Test Subject',
-            text_message,
-            'shyamdemo2018@gmail.com',
-            mail_list,
-            fail_silently=False,
-        )
+        mail_content = MailTemplate.objects.get(code='reverse_grn_created')
+
+        for each_mail in mail_list:
+            username = User.objects.get(email=each_mail)
+            token_data = Token.objects.filter(user=username)
+            encode_token = ''
+
+            for i in token_data:
+                print(i.key)
+                encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+            from_email = 'shyamdemo2018@gmail.com'
+            text_link = SITE_URL + 'grn/details/' + str(revers_grn.id) + '/?token=' + encode_token
+            subject = mail_content.subject
+
+            d = Context({'link': text_link, 'name': username.first_name})
+            text_content = Template(mail_content.text_content)
+            html_content = Template(mail_content.html_content)
+
+            text_content = text_content.render(d)
+            html_content = html_content.render(d)
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+        # send_mail(
+        #     'Test Subject',
+        #     text_message,
+        #     'shyamdemo2018@gmail.com',
+        #     mail_list,
+        #     fail_silently=False,
+        # )
 
         return revers_grn
 
@@ -315,7 +396,7 @@ class ReverseGRNDetailReadSerializer(ModelSerializer):
 
     class Meta:
         model = ReverseGRNDetail
-        fields = ['id','material_details','reverse_grn_quantity','reverse_reason']
+        fields = ['id','material_details','material_uom','reverse_grn_quantity','reverse_reason']
 
 
 class ReversGRNReadSerializer(ModelSerializer):
@@ -324,7 +405,8 @@ class ReversGRNReadSerializer(ModelSerializer):
     class Meta:
         model = ReversGRN
         fields = ['id', 'grn','revers_gen_no','created_at','created_by','status','is_approve',
-                  'is_finalised','reverse_grn_detail']
+                  'is_finalised','reverse_grn_detail','grn_no','company','vendor_name','vendor_address','project',
+                  'purchase_order_no','approval_level']
 
 
 
@@ -334,7 +416,7 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
 
     class Meta:
         model = ReversGRN
-        fields = ['id','status','is_approve','is_finalised']
+        fields = ['id','status','is_approve','is_finalised','approval_level']
 
 
     def update(self, instance, validated_data):
@@ -345,9 +427,17 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
                                           (Q(emp_approve_details__primary_emp=user)|Q(emp_approve_details__secondary_emp=user)))
 
             if validated_data.get('is_approve') == '2':
-                emp = EmpApprove.objects.filter(Q(content=35),
+                emp = EmpApprove.objects.filter(Q(content=37),
                                                 (Q(emp_approve_details__primary_emp=user) | Q(
                                                     emp_approve_details__secondary_emp=user)))
+
+                reverse_grn_detail = ReverseGRNDetail.objects.filter(reverse_grn=instance)
+
+                for reverse_detail in reverse_grn_detail:
+                    grn_detail = GRNDetail.objects.filter(grn=instance.grn, material=reverse_detail.material)
+                    for i in grn_detail:
+                        i.receive_quantity = i.receive_quantity + reverse_detail.reverse_grn_quantity
+                        i.save()
 
             if emp:
 
@@ -366,7 +456,7 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
                     instance.is_approve='1'
                 instance.save()
 
-                text_message = 'http://132.148.130.125:8000/reversegrn_status/' + str(instance.id) + '/'
+                #text_message = 'http://132.148.130.125:8000/reversegrn_status/' + str(instance.id) + '/'
 
                 emp = EmpApproveDetail.objects.filter(emp_approve__content=37, emp_level=validated_data.get('approval_level')+1)
                 print(emp.query)
@@ -375,16 +465,41 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
                 for eachemp in emp:
                     mail_list.append(eachemp.primary_emp.email)
                     mail_list.append(eachemp.secondary_emp.email)
-                print(mail_list)
+
+                mail_content = MailTemplate.objects.get(code='reverse_grn_updated')
+
+                for each_mail in mail_list:
+                    username = User.objects.get(email=each_mail)
+                    token_data = Token.objects.filter(user=username)
+                    encode_token = ''
+
+                    for i in token_data:
+                        print(i.key)
+                        encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+                    from_email = 'shyamdemo2018@gmail.com'
+                    text_link = SITE_URL + 'grn/details/' + str(instance.id) + '/?token=' + encode_token
+                    subject = mail_content.subject
+
+                    d = Context({'link': text_link, 'name': username.first_name})
+                    text_content = Template(mail_content.text_content)
+                    html_content = Template(mail_content.html_content)
+
+                    text_content = text_content.render(d)
+                    html_content = html_content.render(d)
+
+                    msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
 
 
-                send_mail(
-                    'Test Subject',
-                    text_message,
-                    'shyamdemo2018@gmail.com',
-                    mail_list,
-                    fail_silently=False,
-                )
+                # send_mail(
+                #     'Test Subject',
+                #     text_message,
+                #     'shyamdemo2018@gmail.com',
+                #     mail_list,
+                #     fail_silently=False,
+                # )
 
 
             else:

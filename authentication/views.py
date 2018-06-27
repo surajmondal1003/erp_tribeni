@@ -11,6 +11,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from authentication.pagination import ErpLimitOffestpagination,ErpPageNumberPagination
 from authentication.models import EmployeeProfile
+import base64
 
 
 from authentication.serializers import (
@@ -128,3 +129,43 @@ class EmployeeDropdwon(ListAPIView):
     serializer_class = EmployeeReadSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+
+
+class UrlTokenLogin(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        try:
+            token_key = base64.b64decode(request.data['token'].encode()).decode('utf-8')
+            token = Token.objects.get(key=token_key)
+            user = User.objects.get(id=token.user_id)
+            serializer = UserLoginSerializer(user, many=True)
+            if user:
+                # user_groups=list()
+                user_group = user.groups.all()
+                for item in user_group:
+                    user_group = item.name
+                perm_tuple = [{'id': x.id, 'name': x.name} for x in Permission.objects.filter(user=user)]
+
+                approve = EmpApproveDetail.objects.filter(Q(primary_emp=user) | Q(secondary_emp=user))
+                approve_details = []
+                for i in approve:
+                    approve_details.append({'content': i.emp_approve.content.model, 'level': i.emp_level})
+
+                return Response({
+                    'token': token.key,
+                    'user_id': user.pk,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'user_type': user_group,
+                    'group_permissions': user.get_group_permissions(),
+                    'user_permissions': perm_tuple,
+                    'approve_details': approve_details,
+
+                })
+            else:
+                return Response({'message': 'Invalid Login', 'status': status.HTTP_400_BAD_REQUEST})
+        except Exception as e:
+            raise  e

@@ -15,6 +15,14 @@ from purchase_requisition.serializers import RequisitionProjectNameSerializer
 from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
 from django.db.models import Q
 from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context,Template
+from mail.models import MailTemplate
+from erp_tribeni.settings import SITE_URL
+from rest_framework.authtoken.models import Token
+import base64
+from django.contrib.auth.models import User
 
 
 
@@ -91,7 +99,6 @@ class PurchaseOrderSerializer(ModelSerializer):
         po_order.save()
 
         """***** Mail send *****"""
-        text_message = 'http://132.148.130.125:8000/purchase_order_status/' + str(po_order.id) + '/'
 
 
         emp = EmpApproveDetail.objects.filter(emp_approve__content=35, emp_level=1)
@@ -101,15 +108,40 @@ class PurchaseOrderSerializer(ModelSerializer):
         for eachemp in emp:
             mail_list.append(eachemp.primary_emp.email)
             mail_list.append(eachemp.secondary_emp.email)
-        print(mail_list)
 
-        send_mail(
-            'Test Subject',
-            text_message,
-            'shyamdemo2018@gmail.com',
-            mail_list,
-            fail_silently=False,
-        )
+        mail_content = MailTemplate.objects.get(code='order_created')
+
+        for each_mail in mail_list:
+            username = User.objects.get(email=each_mail)
+            token_data = Token.objects.filter(user=username)
+            encode_token = ''
+
+            for i in token_data:
+                print(i.key)
+                encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+            from_email = 'shyamdemo2018@gmail.com'
+            text_link = SITE_URL + 'purchase-orders/details/' + str(po_order.id) + '/?token=' + encode_token
+            subject = mail_content.subject
+
+            d = Context({'link': text_link, 'name': username.first_name})
+            text_content = Template(mail_content.text_content)
+            html_content = Template(mail_content.html_content)
+
+            text_content = text_content.render(d)
+            html_content = html_content.render(d)
+
+            msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+
+            # send_mail(
+            #     'Test Subject',
+            #     text_message,
+            #     'shyamdemo2018@gmail.com',
+            #     mail_list,
+            #     fail_silently=False,
+            # )
 
 
         return po_order
@@ -166,7 +198,8 @@ class PurchaseOrderReadSerializer(ModelSerializer):
         model = PurchaseOrder
         fields = ['id','quotation_no','quotation_date','company','vendor','vendor_address',
                   'grand_total','grand_total_words','is_approve','is_finalised','status','created_at','created_by',
-                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no','requisition','approval_level']
+                  'purchase_order_detail','purchase_order_freight','purchase_order_terms','purchase_order_no',
+                  'requisition','approval_level','project']
 
 
 class PurchaseDetailReadForGRNSerializer(ModelSerializer):
@@ -239,25 +272,49 @@ class PurchaseOrderUpdateStatusSerializer(ModelSerializer):
                 instance.is_approve = '1'
             instance.save()
 
-            text_message = 'http://132.148.130.125:8000/purchase_order_status/' + str(instance.id) + '/'
 
             emp = EmpApproveDetail.objects.filter(emp_approve__content=34,
                                                   emp_level=validated_data.get('approval_level') + 1)
-            print(emp.query)
+
 
             mail_list = list()
             for eachemp in emp:
                 mail_list.append(eachemp.primary_emp.email)
                 mail_list.append(eachemp.secondary_emp.email)
-            print(mail_list)
 
-            send_mail(
-                'Test Subject',
-                text_message,
-                'shyamdemo2018@gmail.com',
-                mail_list,
-                fail_silently=False,
-            )
+            mail_content = MailTemplate.objects.get(code='order_updated')
+
+            for each_mail in mail_list:
+                username = User.objects.get(email=each_mail)
+                token_data = Token.objects.filter(user=username)
+                encode_token = ''
+
+                for i in token_data:
+                    print(i.key)
+                    encode_token = base64.b64encode(i.key.encode('utf-8')).decode()
+
+                from_email = 'shyamdemo2018@gmail.com'
+                text_link = SITE_URL + 'purchase-orders/details/' + str(instance.id) + '/?token=' + encode_token
+                subject = mail_content.subject
+
+                d = Context({'link': text_link, 'name': username.first_name})
+                text_content = Template(mail_content.text_content)
+                html_content = Template(mail_content.html_content)
+
+                text_content = text_content.render(d)
+                html_content = html_content.render(d)
+
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [each_mail])
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+                # send_mail(
+                #     'Test Subject',
+                #     text_message,
+                #     'shyamdemo2018@gmail.com',
+                #     mail_list,
+                #     fail_silently=False,
+                # )
 
 
         else:

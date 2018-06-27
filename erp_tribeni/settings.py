@@ -69,7 +69,8 @@ INSTALLED_APPS = [
     'uom',
     'company_project',
     'attendance',
-    'appapprovepermission'
+    'appapprovepermission',
+    'mail'
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SITE_URL='http://132.148.130.125/erp/#/'

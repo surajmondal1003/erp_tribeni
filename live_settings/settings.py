@@ -29,7 +29,7 @@ ALLOWED_HOSTS = ['132.148.130.125', 's132-148-158-56.secureserver.net']
 
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_FROM_EMAIL = 'shyamdemo2018@gmail.com'
 SERVER_EMAIL = 'shyamdemo2018@gmail.com'
@@ -74,7 +74,8 @@ INSTALLED_APPS = [
     'uom',
     'company_project',
     'attendance',
-    'appapprovepermission'
+    'appapprovepermission',
+    'mail'
 ]
 
 
@@ -166,3 +167,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+SITE_URL='http://132.148.130.125/erp/#/'

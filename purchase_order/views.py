@@ -39,7 +39,7 @@ class PurchaseOrderReadView(ListAPIView):
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('requisition__requisition_no', 'purchase_order_no', 'company__company_name',
-                     'grand_total','project__project_name')
+                     'grand_total','requisition__project__project_name')
     def get_queryset(self):
         try:
             queryset = PurchaseOrder.objects.all().order_by('-id')

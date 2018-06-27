@@ -94,6 +94,28 @@ class ReversGRN(models.Model):
     def __str__(self):
         return str(self.created_at)
 
+    def grn_no(self):
+        return self.grn.grn_no
+
+    def company(self):
+        name=self.grn.company.company_name
+        id=self.grn.company.id
+        details={'id':id,'company_name':name}
+
+        return details
+
+    def project(self):
+        name=self.grn.po_order.requisition.project.project_name
+        id=self.grn.po_order.requisition.project.id
+        details={'id':id,'name':name}
+        return details
+    def vendor_name(self):
+        return self.grn.vendor.vendor_fullname
+    def vendor_address(self):
+        return self.grn.vendor_address.address
+
+    def purchase_order_no(self):
+        return self.grn.po_order.purchase_order_no
 
 
 class ReverseGRNDetail(models.Model):
@@ -107,10 +129,24 @@ class ReverseGRNDetail(models.Model):
 
     def material_details(self):
         id=self.material.id
-        name=self.material.name
-        details={'id':id,'name':name}
+        name=self.material.material_fullname
+        code=self.material.material_code
+        type=self.material.material_type.material_type
+        details={'id':id,'name':name,'material_code':code,'material_type':type}
         return details
 
+    def material_uom(self):
+        uom=Material_UOM.objects.values_list('base_uom').filter(material=self.material,material_for='1')
+        #print(uom.values_list('base_uom')[0])
+        materialuom=0
+        for i in uom:
+            if i[0]:
+                materialuom=i[0]
+        uom_name=UOM.objects.filter(id=materialuom)
+        name=''
+        for j in uom_name:
+            name=j.name
+        return name
 
 
 

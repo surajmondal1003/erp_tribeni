@@ -20,7 +20,8 @@ from grn.serializers import (
     GRNReadSerializer,
     GRNUpdateStatusSerializer,
     ReversGRNSerializer,
-    ReversGRNReadSerializer
+    ReversGRNReadSerializer,
+    ReverseGRNUpdateStatusSerializer
 
 )
 from django.contrib.auth.models import User
@@ -38,7 +39,7 @@ class GRNReadViewList(ListAPIView):
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('grn_no','po_order__purchase_order_no','company__company_name','vendor__vendor_fullname',
-                     'vendor_address__address')
+                     'vendor_address__address','po_order__requisition__project__project_name')
 
 
     def get_queryset(self):
@@ -198,17 +199,25 @@ class ReversGRNReadViewList(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('revers_gen_no','reverse_quantity')
+    search_fields = ('revers_gen_no','reverse_quantity','grn__company__company_name','grn__vendor__vendor_fullname','grn__vendor_address__address',
+                     'grn__grn_no')
 
     def get_queryset(self):
         try:
+            queryset=ReversGRN.objects.all().order_by('-id')
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
+            project = self.request.query_params.get('project', None)
+            company = self.request.query_params.get('company', None)
 
             if order_by and order_by.lower() == 'desc' and field_name:
                 queryset = ReversGRN.objects.all().order_by('-' + field_name)
             elif order_by and order_by.lower() == 'asc' and field_name:
                 queryset = ReversGRN.objects.all().order_by(field_name)
+            elif project is not None:
+                queryset = queryset.filter(grn__po_order__requisition__project=project)
+            elif company is not None:
+                queryset = queryset.filter(grn__company=company)
             else:
                 queryset = ReversGRN.objects.all().order_by('-id')
             return queryset
@@ -217,8 +226,8 @@ class ReversGRNReadViewList(ListAPIView):
             raise
 
 class ReversGRNUpdateStatus(RetrieveUpdateDestroyAPIView):
-    queryset = GRN.objects.all()
-    serializer_class = ReversGRNSerializer
+    queryset = ReversGRN.objects.all()
+    serializer_class = ReverseGRNUpdateStatusSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -236,4 +245,4 @@ class PreviousReversGRNList(ListAPIView):
 
     def get_queryset(self):
         grn = self.kwargs['grn']
-        return ReversGRN.objects.filter(grn=grn,status=True,is_deleted=False)
+        return ReversGRN.objects.filter(grn=grn,status=True)
