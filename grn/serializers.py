@@ -23,7 +23,7 @@ from company.serializers import CompanyListSerializer
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectDetailsSerializer,CompanyProjectUpdateStatusSerializer
 from authentication.serializers import UserReadSerializer
 from purchase_requisition.serializers import RequisitionProjectNameSerializer
-from purchase_order.models import PurchaseOrderDetail
+from purchase_order.models import PurchaseOrderDetail,PurchaseOrder
 from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
 from django.db.models import Q
 from django.core.mail import send_mail
@@ -174,7 +174,7 @@ class GRNReadSerializer(ModelSerializer):
         model = GRN
         fields = ['id','grn_no','po_order','company','vendor','vendor_address','waybill_no','vehicle_no',
                   'check_post','challan_no','challan_date','is_approve','is_finalised','status','created_at',
-                  'created_by','grn_detail','is_deleted','purchase_order_no','project']
+                  'created_by','grn_detail','is_deleted','purchase_order_no','project','approval_level']
 
 
 class GRNCreateBySerializer(ModelSerializer):
@@ -196,6 +196,13 @@ class GRNUpdateStatusSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
 
+        if validated_data.get('is_finalised') == '1':
+            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+            instance.save()
+
+
+        else:
+
             user = self.context['request'].user
             emp=EmpApprove.objects.filter(Q(content=35),
                                           Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
@@ -214,9 +221,13 @@ class GRNUpdateStatusSerializer(ModelSerializer):
                     for po_data in po_detail:
                         po_data.avail_qty += i.receive_quantity
                         po_data.save()
+
                         if po_data.po_order.is_finalised == '1':
-                            po_data.po_order.is_finalised = '0'
-                            po_data.save()
+
+                            po=PurchaseOrder.objects.get(id=po_data.po_order.id)
+                            po.is_finalised='0'
+                            po.save()
+
 
             if emp:
 
@@ -284,7 +295,7 @@ class GRNUpdateStatusSerializer(ModelSerializer):
             else:
                 raise serializers.ValidationError({'message':'You dont have authority to Approve'})
 
-            return instance
+        return instance
 
 
 
@@ -421,6 +432,13 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
 
+        if validated_data.get('is_finalised') == '1':
+            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+            instance.save()
+
+
+        else:
+
             user = self.context['request'].user
             emp=EmpApprove.objects.filter(Q(content=37),
                                           Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
@@ -505,4 +523,4 @@ class ReverseGRNUpdateStatusSerializer(ModelSerializer):
             else:
                 raise serializers.ValidationError({'message':'You dont have authority to Approve'})
 
-            return instance
+        return instance

@@ -10,8 +10,7 @@ import json
 
 
 class CompanyProjectDetailsSerializer(ModelSerializer):
-    material = MaterialNameSerializer(read_only=True)
-    materialtype = MaterialTypeSerializer(read_only=True)
+
     class Meta:
         model = CompanyProjectDetail
         fields = ['id','materialtype','material','quantity','boq_ref','rate','avail_qty']
@@ -98,6 +97,8 @@ class CompanyProjectUpdateStatusSerializer(ModelSerializer):
 
 
 class CompanyProjectDetailsReadSerializer(ModelSerializer):
+    material = MaterialNameSerializer(read_only=True)
+    materialtype = MaterialTypeSerializer(read_only=True)
 
     class Meta:
         model = CompanyProjectDetail

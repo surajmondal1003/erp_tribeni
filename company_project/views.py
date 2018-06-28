@@ -39,6 +39,7 @@ class CompanyProjectViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         try:
+
             order_by = self.request.query_params.get('order_by', None)
             field_name = self.request.query_params.get('field_name', None)
 
@@ -57,10 +58,12 @@ class CompanyProjectViewSet(viewsets.ModelViewSet):
     #     queryset = self.get_queryset()
     #     serializer = CompanyProjectReadSerializer(queryset, many=True)
     #     return Response(serializer.data)
-    # def retrieve(self, request, *args, **kwargs):
-    #     queryset = self.get_queryset()
-    #     serializer = CompanyProjectReadSerializer(queryset, many=True)
-    #     return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        id=self.kwargs['pk']
+        queryset = CompanyProject.objects.get(id=id)
+        serializer = CompanyProjectReadSerializer(queryset,read_only=True)
+        return Response(serializer.data)
 
 
 
@@ -72,11 +75,13 @@ class SpecificCompanyProject(ListAPIView):
     authentication_classes = [TokenAuthentication]
     pagination_class = ErpPageNumberPagination
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('project_name','project_address','project_state__state_name','project_city','project_contact_no')
+    search_fields = ('project_name','project_address','project_state__state_name','project_city','project_contact_no','project_gstin')
 
     def get_queryset(self):
         company=self.kwargs['company']
         return CompanyProject.objects.filter(company_id=company,is_deleted=False).order_by('-id')
+
+
 
 
 

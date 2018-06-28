@@ -11,7 +11,7 @@ from company_project.serializers import CompanyProjectSerializer,CompanyProjectD
 from uom.serializers import UOMSerializer
 from rest_framework.relations import StringRelatedField,PrimaryKeyRelatedField
 from company_project.serializers import CompanyProjectSerializer,CompanyProjectReadSerializer
-from company_project.models import CompanyProjectDetail
+from company_project.models import CompanyProjectDetail,CompanyProject
 from appapprovepermission.models import AppApprove,EmpApprove,EmpApproveDetail
 from django.db.models import Q
 from django.core.mail import send_mail
@@ -178,6 +178,13 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
 
     def update(self, instance, validated_data):
 
+        if validated_data.get('is_finalised') == '1':
+            instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
+            instance.save()
+
+
+        else:
+
             user = self.context['request'].user
             print(validated_data.get('approval_level'))
             emp=EmpApprove.objects.filter(Q(content=29),
@@ -198,8 +205,10 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
                         project_data.avail_qty += i.quantity
                         project_data.save()
                         if project_data.project.is_finalised == '1' :
-                            project_data.project.is_finalised='0'
-                            project_data.save()
+
+                            main_project=CompanyProject.objects.get(id=project_data.project.id)
+                            main_project.is_finalised='0'
+                            main_project.save()
 
             if emp:
 
@@ -265,7 +274,7 @@ class RequisitionUpdateStatusSerializer(ModelSerializer):
             else:
                 raise serializers.ValidationError({'message':'You dont have authority to Approve'})
 
-            return instance
+        return instance
 
 
 
