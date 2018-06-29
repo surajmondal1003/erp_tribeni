@@ -72,7 +72,11 @@ class RequisitionSerializer(ModelSerializer):
                 project = CompanyProjectDetail.objects.filter(project=detail.requisition.project,
                                                                material=detail.material)
                 for i in project:
-                    i.avail_qty = i.avail_qty - detail.quantity
+                    avail_qty = i.avail_qty - detail.quantity
+                    if avail_qty < 0:
+                        i.avail_qty = 0
+                    else:
+                        i.avail_qty = avail_qty
                     i.save()
 
 

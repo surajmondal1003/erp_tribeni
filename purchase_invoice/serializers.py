@@ -157,13 +157,14 @@ class InvoiceUpdateStatusSerializer(ModelSerializer):
 
         else:
             user = self.context['request'].user
-            emp = EmpApprove.objects.filter(Q(content=34),
+            emp = EmpApprove.objects.filter(Q(content=38),
                                             Q(emp_approve_details__emp_level=validated_data.get('approval_level')),
                                             (Q(emp_approve_details__primary_emp=user) | Q(
                                                 emp_approve_details__secondary_emp=user)))
+            print(emp.query)
 
             if validated_data.get('is_approve') == '2':
-                emp = EmpApprove.objects.filter(Q(content=34),
+                emp = EmpApprove.objects.filter(Q(content=38),
                                                 (Q(emp_approve_details__primary_emp=user) | Q(
                                                     emp_approve_details__secondary_emp=user)))
 
@@ -182,7 +183,7 @@ class InvoiceUpdateStatusSerializer(ModelSerializer):
 
             if emp:
 
-                app_level = AppApprove.objects.filter(content=34)
+                app_level = AppApprove.objects.filter(content=38)
 
                 instance.is_approve = validated_data.get('is_approve', instance.is_approve)
                 instance.is_finalised = validated_data.get('is_finalised', instance.is_finalised)
@@ -199,7 +200,7 @@ class InvoiceUpdateStatusSerializer(ModelSerializer):
 
                 #text_message = 'http://132.148.130.125:8000/purchase_invoice_status/' + str(instance.id) + '/'
 
-                emp = EmpApproveDetail.objects.filter(emp_approve__content=34,
+                emp = EmpApproveDetail.objects.filter(emp_approve__content=38,
                                                       emp_level=validated_data.get('approval_level') + 1)
                 print(emp.query)
 

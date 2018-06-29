@@ -99,7 +99,11 @@ class StockIssueSerializer(ModelSerializer):
         print(stockissue.stockview.id)
         stock_view = StockView.objects.filter(id=stockissue.stockview.id)
         for i in stock_view:
-            i.avl_qty = i.avl_qty - stockissue.quantity
+            avl_qty = i.avl_qty - stockissue.quantity
+            if avl_qty < 0:
+                i.avl_qty = 0
+            else:
+                i.avl_qty = avl_qty
             i.save()
 
         if stockissue.from_project != stockissue.to_project:

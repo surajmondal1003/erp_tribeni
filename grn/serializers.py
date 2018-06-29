@@ -72,7 +72,11 @@ class GRNSerializer(ModelSerializer):
             order = PurchaseOrderDetail.objects.filter(po_order=detail.grn.po_order,
                                                            material=detail.material)
             for i in order:
-                i.avail_qty = i.avail_qty - detail.receive_quantity
+                avail_qty = i.avail_qty - detail.receive_quantity
+                if avail_qty < 0:
+                    i.avail_qty=0
+                else:
+                    i.avail_qty=avail_qty
                 i.save()
 
         grn.grn_no = grn_no
@@ -337,7 +341,12 @@ class ReversGRNSerializer(ModelSerializer):
 
             grn_detail = GRNDetail.objects.filter(grn=revers_grn.grn,material=reverse_detail.material)
             for i in grn_detail:
-                i.receive_quantity = i.receive_quantity - reverse_detail.reverse_grn_quantity
+
+                receive_quantity = i.receive_quantity - reverse_detail.reverse_grn_quantity
+                if receive_quantity < 0:
+                    i.receive_quantity=0
+                else:
+                    i.receive_quantity=receive_quantity
                 i.save()
 
         """***** Mail send *****"""

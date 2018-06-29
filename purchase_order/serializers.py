@@ -87,7 +87,11 @@ class PurchaseOrderSerializer(ModelSerializer):
 
             requisition=RequisitionDetail.objects.filter(requisition=detail.po_order.requisition,material=detail.material)
             for i in requisition:
-                i.avail_qty=i.avail_qty - detail.order_quantity
+                avail_qty=i.avail_qty - detail.order_quantity
+                if avail_qty < 0:
+                    i.avail_qty=0
+                else:
+                    i.avail_qty=avail_qty
                 i.save()
 
         for purchase_order_freight in purchase_order_freight_data:
